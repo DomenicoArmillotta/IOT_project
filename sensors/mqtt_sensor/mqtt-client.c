@@ -83,7 +83,8 @@ static char pub_topic[BUFFER_SIZE];
 
 static int value = 0;
 static int umidity = 0;
-static int weather = 0;
+static int light = 0;
+static int gas = 0;
 
 // Periodic timer to check the state of the MQTT client
 #define STATE_MACHINE_PERIODIC (CLOCK_SECOND >> 1)
@@ -285,13 +286,14 @@ PROCESS_THREAD(mqtt_publisher,ev,data) {
     if ((ev == PROCESS_EVENT_TIMER && data == &publish_timer)) {
       if (state == STATE_SUBSCRIBED) {
         // Publish something , specify tag of topic
-		    sprintf(pub_topic, "%s", "weatherinfo");
+		    sprintf(pub_topic, "%s", "info");
 
-  			sprintf(app_buffer, "{\"temp\":%d,\"umidity\":%d,\"weather\":%d}", value, umidity,weather);
+  			sprintf(app_buffer, "{\"temp\":%d,\"umidity\":%d,\"sun\":%d,,\"gas\":%d}", value, umidity,light,gas);
 
-  			value = rand() % 36;
+              value = rand() % 36;
         umidity = rand() % 101;
-        weather = rand() % 3;
+        light = rand() % 3;
+        gas = rand() % 100;
 
         printf("Message: %s\n",app_buffer);
             //code to publish the message

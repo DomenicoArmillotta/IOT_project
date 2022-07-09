@@ -22,7 +22,7 @@ class MqttClient:
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
         #topic a cui mi voglio iscrivere
-        self.client.subscribe("weatherinfo")
+        self.client.subscribe("info")
 
     ''' 
         The callback for when a PUBLISH message is received from the server. The received payload is inserted into the database
@@ -33,17 +33,19 @@ class MqttClient:
         receivedData = json.loads(msg.payload)
         temp = receivedData["temp"]
         umidity = receivedData["umidity"]
-        if receivedData["weather"] == 0:
-            weather = "SUNNY"
-        elif receivedData["weather"] == 1:
-            weather = "CLOUDY"
+        light = receivedData["light"]
+        gas = receivedData["gas"]
+        if receivedData["light"] == 0:
+            light = "LOUMINOUS"
+        elif receivedData["light"] == 1:
+            light = "RELAX"
         else:
-            weather = "RAINY"
+            light = "DARK"
         #faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
         with self.connection.cursor() as cursor:
             # Create a new record
-            sql = "INSERT INTO `mqttsensors` (`temperature`, `umidity`,`weather`) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (temp,umidity,weather))
+            sql = "INSERT INTO `mqttsensors` (`temperature`, `umidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
+            cursor.execute(sql, (temp,umidity,light , gas))
 
         # Commit changes
         self.connection.commit()
