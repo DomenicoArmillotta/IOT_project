@@ -31,26 +31,28 @@ res_event_handler); //--> handler invoke auto  every time the state of resource 
 //get per sapere lo stato
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
-    LOG_INFO("Handling alarm intensity get request...\n");
-    char* msg;
+    // Create a JSON message with the detected presence value and led value
+    // In both the resources the get_handler return the current sensor values
+    int length;
 
-    int length = snprintf(NULL, 0,"%lf", intensity) + 1;
-    msg = (char*)malloc((length)*sizeof(char));
-    snprintf(msg, length, "%lf", intensity);
+    char msg[300];
+    // T = true
+    // N = negative
+    char val2 = isActive == 1 ? 'T': 'N';
+    strcpy(msg,"{\"info\":\"");
+    strncat(msg,&val2,1);
+    strcat(msg,"\" ");
+    strncat(msg,&intensity,1);
+    strcat(msg,"\"}");
+    length = strlen(msg);
+    memcpy(buffer, (uint8_t *)msg, length);
 
-
-
-    // prepare buffer
-    size_t len = strlen(msg);
-    memcpy(buffer, (const void *)msg, length);
-
-    // COAP FUNCTIONS
     coap_set_header_content_format(response, TEXT_PLAIN);
-    coap_set_header_etag(response, (uint8_t *)&len, 1);
-    coap_set_payload(response, buffer, len);
+    coap_set_header_etag(response, (uint8_t *)&length, 1);
+    coap_set_payload(response, (uint8_t *)buffer, length);
 
 }
-
+//non usata --> gestione dell'intensità nella put
 static void put_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
     LOG_INFO("Handling intensity put request...\n");

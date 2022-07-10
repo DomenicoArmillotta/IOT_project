@@ -27,7 +27,39 @@ class AlertResource :
         # Start observing for updates
         self.start_observing()
 
+    #salvo l'intensità dell'allarme
+    def detection_callback_observer(self, response):
+        print("Callback called, resource arrived")
+        if response.payload is not None:
+            print(response.payload)
+            nodeData = json.loads(response.payload)
+            #read from payload of client
+            info = nodeData["info"].split(" ")
+            print("Detection value :")
+            print(info)
+            self.isDetected = info[0]
+            self.intensity = info[1];
+            #when occour an intrusion a query is executed
+            if self.isActive == 'T':
+                self.execute_query()
 
+
+    def execute_query(self):
+        print(self.connection)
+        with self.connection.cursor() as cursor:
+            # Create a new record
+            time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            intensity = str(self.intensity)
+            sql = "INSERT INTO `coapsensorsAlarm` (`value`, `timestamp` , `intensity`) VALUES (%s, %s , %s)"
+            cursor.execute(sql, (self.isDetected, time , intensity))
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        self.connection.commit()
+
+
+
+
+    #non è efficente fare query al db per mettere in store quando è acceso l'allarme
     def start_observing(self):
         logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)
         logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)
