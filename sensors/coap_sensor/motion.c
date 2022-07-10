@@ -20,7 +20,7 @@
 #define CONN_TRY_INTERVAL 1
 #define REG_TRY_INTERVAL 1
 #define SIMULATION_INTERVAL 30
-#define SENSOR_TYPE "soil_moisture_sensor"
+#define SENSOR_TYPE "motion_sensor"
 
 /* Log configuration */
 #include "sys/log.h"
