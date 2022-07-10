@@ -3,14 +3,16 @@
 #include <string.h>
 #include "time.h"
 #include "os/dev/leds.h"
+#include "sys/etimer.h"
 
 /* Log configuration */
 #include "sys/log.h"
 #define LOG_MODULE "motion sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
+#define EVENT_INTERVAL 30
 
 static bool isDetected = false;
-static char timestamp[9]
+static char timestamp[9];
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 
@@ -48,6 +50,20 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 
 static void res_event_handler(void)
 {
-    // Notify all the observers
-    coap_notify_observers(&res_obs);
+
+
+    srand(time(NULL));
+    int random = rand() % 2;
+
+    bool new_isDetected = isDetected;
+    if(random == 0){
+        new_isDetected=!isDetected
+    }
+
+    if(new_isDetected != isDetected){
+        isDetected = new_isDetected;
+        // Notify all the observers
+        coap_notify_observers(&motion_sensor);
+    }
+
 }

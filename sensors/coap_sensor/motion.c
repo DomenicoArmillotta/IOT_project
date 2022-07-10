@@ -19,7 +19,7 @@
 #define SERVER_EP "coap://[fd00::1]:5683"
 #define CONN_TRY_INTERVAL 1
 #define REG_TRY_INTERVAL 1
-#define SIMULATION_INTERVAL 8
+#define SIMULATION_INTERVAL 30
 #define SENSOR_TYPE "soil_moisture_sensor"
 
 /* Log configuration */
@@ -69,8 +69,10 @@ void client_chunk_handler(coap_message_t *response)
 
     int len = coap_get_payload(response, &chunk);
 
-    if(strncmp((char*)chunk, "Success", len) == 0)
+    if(strncmp((char*)chunk, "Success", len) == 0){
         registered = true;
+        //leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
+    }
     else
         etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
 }
@@ -116,7 +118,7 @@ PROCESS_THREAD(soil_moisture_server, ev, data)
 
     while (1) {
     PROCESS_WAIT_EVENT();
-
+        //ogni 30 secondi triggera il controllo e genera random isDetected
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
             motion_sensor.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
