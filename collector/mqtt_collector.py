@@ -32,7 +32,7 @@ class MqttClient:
         print(msg.topic+"  "+str(msg.payload))
         receivedData = json.loads(msg.payload)
         temp = receivedData["temp"]
-        umidity = receivedData["umidity"]
+        humidity = receivedData["humidity"]
         light = receivedData["light"]
         gas = receivedData["gas"]
         if receivedData["light"] == 0:
@@ -44,8 +44,8 @@ class MqttClient:
         #faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
         with self.connection.cursor() as cursor:
             # Create a new record
-            sql = "INSERT INTO `mqttsensors` (`temperature`, `umidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
-            cursor.execute(sql, (temp,umidity,light , gas))
+            sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
+            cursor.execute(sql, (temp,humidity,light , gas))
 
         # Commit changes
         self.connection.commit()

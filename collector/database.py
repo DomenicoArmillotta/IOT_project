@@ -4,8 +4,7 @@ import pymysql.cursors
 
 '''
     Class Database: open a connection through mysql database, to database datacollector containing the coapsensors 
-    table (with information about user entering and leaving) and the mqttsensors (with information about weather)
-    An instance of Database is assigned both to mote resource (each single lock sensor) and to the mqtt_collector
+    table (with information about access and logout  , and log of intrution detection) and the mqttsensors (with information about room)
 '''
 class Database:
     connection = None

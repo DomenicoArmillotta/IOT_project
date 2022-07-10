@@ -82,7 +82,7 @@ static char pub_topic[BUFFER_SIZE];
 // static char sub_topic[BUFFER_SIZE];
 
 static int value = 0;
-static int umidity = 0;
+static int humidity = 0;
 static int light = 0;
 static int gas = 0;
 
@@ -288,10 +288,10 @@ PROCESS_THREAD(mqtt_publisher,ev,data) {
         // Publish something , specify tag of topic
 		    sprintf(pub_topic, "%s", "info");
 
-  			sprintf(app_buffer, "{\"temp\":%d,\"umidity\":%d,\"sun\":%d,,\"gas\":%d}", value, umidity,light,gas);
+  			sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
 
               value = rand() % 36;
-        umidity = rand() % 101;
+humidity = rand() % 101;
         light = rand() % 3;
         gas = rand() % 100;
 
