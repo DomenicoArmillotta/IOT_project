@@ -76,7 +76,7 @@ static void put_intensity_handler(coap_message_t *request, coap_message_t *respo
         coap_set_status_code(response, BAD_REQUEST_4_00);
 }
 
-
+//usata per fare on/off
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
     LOG_INFO("Handling switch post request...\n");
@@ -90,11 +90,17 @@ static void post_switch_handler(coap_message_t *request, coap_message_t *respons
         if (strncmp((char*)payload, "ON", strlen("ON")) == 0)
         {
             isActive = true;
+            //ogni volta che viene chiamata di seguito una ON intensifica di 10 la potenza
+            if(intensity<100){
+                intensity=intensity+10;
+            }
             LOG_INFO("Switch on\n");
         }
         if (strncmp((char*)payload, "OFF", strlen("OFF")) == 0)
         {
             isActive = false;
+            //reset dell'intensita appena viene spento così riparte da 10
+            intensity=10;
             LOG_INFO("Switch off\n");
         }
     } else

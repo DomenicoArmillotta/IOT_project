@@ -23,9 +23,10 @@ class AlertResource :
         self.type = node_type
         self.actuator_resource = "alert"
         self.intensity = 10;
-        self.isActive = "false";
+        self.isActive = "F";
         # Start observing for updates
         self.start_observing()
+
 
     def start_observing(self):
         logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)

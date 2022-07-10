@@ -24,7 +24,7 @@ class MotionResource :
         self.id = node_id
         self.type = node_type
         self.actuator_resource = "alert"
-        self.isDetected = "false";
+        self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
 
@@ -59,7 +59,7 @@ class MotionResource :
             with self.connection.cursor() as cursor:
                 # Create a new record
                 time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-                sql = "INSERT INTO `coapsensors` (`value`, `timestamp`) VALUES (%s, %s)"
+                sql = "INSERT INTO `coapsensorsMotion` (`value`, `timestamp`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.isDetected, time))
 
             # connection is not autocommit by default. So you must commit to save

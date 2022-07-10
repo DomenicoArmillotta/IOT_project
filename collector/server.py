@@ -62,7 +62,7 @@ class AdvancedResourceAlert(Resource):
         moteInfo["Source"] = request.source
         alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
         return self, response
-
+'''
     def render_PUT_advanced(self, request, response):
         print("GET server, received message:\n")
         print(request.payload)
@@ -92,3 +92,4 @@ class AdvancedResourceAlert(Resource):
         moteInfo["Source"] = request.source
         alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
         return self, response
+'''
