@@ -33,32 +33,21 @@ class MotionResource :
         if response.payload is not None:
             print(response.payload)
             nodeData = json.loads(response.payload)
-            if not nodeData["ClientInfo"]:
-                print("Credentials are empty: discard message...")
-                return
-            credentials = nodeData["ClientInfo"].split(" ")
-            print("Client credentials are:")
-            print(credentials)
-            self.client_name = credentials[0]
-            self.password = credentials[1]
-            try:
-                server_password = server.registeredUsersDict[credentials[0]]
-                if server_password == self.password:
-                    print("User recognized!")
-                    lockState = nodeData["BoxSituation"]
-                    print(lockState)
-                    self.box_situation = "Free" if lockState == 'F' else 'Busy'
-                    if lockState == 'F':
-                        response = self.client.post(self.actuator_resource,"state=1")
-                        self.execute_query(1)
-                    else:
-                        response = self.client.post(self.actuator_resource,"state=0")
-                        self.execute_query(0)
-            except KeyError as e:
-                # print("User not present")
-                print(str(e))
-            except Exception as e1:
-                print(str(e1))
+            #read from payload of client
+            isDetected = nodeData["isDetected"].split(" ")
+            print("Detection value :")
+            print(isDetected)
+            self.isDetected = isDetected[0]
+            #when occour an intrusion a query is executed
+            if self.isDetected == 'T':
+                #response per far cambiare stato all'allert
+                response = self.client.post(self.actuator_resource,"ON")
+                #faccio la query quando trovo un intruso
+                self.execute_query(1)
+            else:
+                #quando non c'è un intruso cambio solo lo stato , ma senza query
+                response = self.client.post(self.actuator_resource,"OFF")
+
 
 
     def execute_query(self,value):

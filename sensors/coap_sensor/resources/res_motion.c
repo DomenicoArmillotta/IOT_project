@@ -30,21 +30,23 @@ res_event_handler); //--> handler invoke auto  every time the state of resource 
 //qui ci sono le response che il server manda al client
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
+    // Create a JSON message with the detected presence value and led value
+    // In both the resources the get_handler return the current sensor values
     int length;
-    char* msg;
-    if (isDetected)
-    {
-        length = sizeof ("detected")+1;
-        msg = (char*)malloc((length)*sizeof(char));
-        snprintf(msg,length,"detected");
-    }
 
+    char msg[300];
+    // T = true
+    // N = negative
+    char val2 = isDetected == 1 ? 'T': 'N';
+    strcpy(msg,"{\"isDetected\":\"");
+    strncat(msg,&val2,1);
+    strcat(msg,"\"}");
+    length = strlen(msg);
+    memcpy(buffer, (uint8_t *)msg, length);
 
-    size_t len = strlen(msg);
-    memcpy(buffer, (const void *)msg, len);
     coap_set_header_content_format(response, TEXT_PLAIN);
-    coap_set_header_etag(response, (uint8_t *)&len, 1);
-    coap_set_payload(response, buffer, len);
+    coap_set_header_etag(response, (uint8_t *)&length, 1);
+    coap_set_payload(response, (uint8_t *)buffer, length);
 
 }
 
