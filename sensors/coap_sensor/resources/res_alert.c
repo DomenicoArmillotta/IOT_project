@@ -16,6 +16,7 @@ static bool intensity = 10;
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void put_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_event_handler(void);
 
 
 //qui costruisco la response che devo dare al client
@@ -93,5 +94,4 @@ static void res_event_handler(void)
 {
     if (isActive)
         coap_notify_observers(&alert_actuator);
-
 }

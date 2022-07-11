@@ -21,6 +21,8 @@
 #define REG_TRY_INTERVAL 1
 #define SENSOR_TYPE "alert_actuator"
 #define SIMULATION_INTERVAL 30
+#define TIMEOUT_INTERVAL 30
+
 
 /* Log configuration */
 #include "sys/log.h"
@@ -38,12 +40,17 @@ char* service_url = "/registration";
 
 static bool connected = false;
 static bool registered = false;
+bool pressed = false;
+
 
 static struct etimer wait_connectivity;
 static struct etimer wait_registration;
 static struct etimer simulation;
+static struct etimer timeout_timer;
+
 
 extern coap_resource_t alert_actuator;
+extern coap_resource_t  alert_switch_actuator;
 
 //*************************** UTILITY FUNCTIONS *****************************//
 static void check_connection()
@@ -86,7 +93,12 @@ void client_chunk_handler(coap_message_t *response)
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
+    button_hal_button_t *btn;
+
     PROCESS_BEGIN();
+
+    btn = button_hal_get_by_index(0);
+
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
@@ -108,8 +120,9 @@ PROCESS_THREAD(alert_server, ev, data)
         coap_set_header_uri_path(request, service_url);
         //nel payload abbiamo solo il tipo di sensore = alert_actuator
         strcpy(msg, "{\"Resource\":\"%s}", SENSOR_TYPE);
-                coap_set_payload(request, (uint8_t*) msg, strlen(msg));
+        coap_set_payload(request, (uint8_t*) msg, strlen(msg));
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+        registered = true;
 
         // wait for the timer to expire
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
@@ -118,6 +131,7 @@ PROCESS_THREAD(alert_server, ev, data)
 
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
+    coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
 
     // SIMULATION
     etimer_set(&simulation, CLOCK_SECOND * interval);
@@ -130,6 +144,28 @@ PROCESS_THREAD(alert_server, ev, data)
             alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }
+
+        if ((ev == button_hal_press_event) && !pressed) {
+            //registered la variabile per capire se si è registrata al border router
+            if (registered) {
+                printf("Button pressed\n");
+                btn = (button_hal_button_t *)data;
+                printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
+                pressed = !pressed;
+                etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
+            }
+        }
+        if (pressed) {
+            if (registered) {
+                // Client has put info, stop the running timer (if any)
+                etimer_stop(&timeout_timer);
+                printf("Running timer stopped!\n");
+                alert_switch_actuator.trigger();
+                pressed = false;
+
+            }
+        }
+
     }
 
     PROCESS_END();
