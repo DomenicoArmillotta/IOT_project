@@ -95,7 +95,10 @@ PROCESS_THREAD(alert_server, ev, data)
 {
     button_hal_button_t *btn;
 
-    PROCESS_BEGIN();
+   static struct etimer et;
+
+   PROCESS_BEGIN();
+   etimer_set(&et, 2*CLOCK_SECOND);
 
     btn = button_hal_get_by_index(0);
 
@@ -126,6 +129,12 @@ PROCESS_THREAD(alert_server, ev, data)
 
         // wait for the timer to expire
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+        if(registered){
+            if(etimer_expired(&et)){
+                leds_toggle(LEDS_GREEN);
+                etimer_restart(&et);
+            }
+        }
     }
     LOG_INFO("REGISTERED\nStarting alert server");
 

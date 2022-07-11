@@ -52,6 +52,7 @@ static void check_connection()
         LOG_INFO("BR reachable");
         // TODO: notificare in qualche modo che si è connessi
         // gli altri hanno usato i led
+
         connected = true;
     }
 }
@@ -79,10 +80,12 @@ void client_chunk_handler(coap_message_t *response)
 
 
 //*************************** THREAD *****************************//
-PROCESS_THREAD(soil_moisture_server, ev, data)
+PROCESS_THREAD(motion_server, ev, data)
 {
-    PROCESS_BEGIN();
+    static struct etimer et;
 
+    PROCESS_BEGIN();
+    etimer_set(&et, 2*CLOCK_SECOND);
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
@@ -108,6 +111,12 @@ PROCESS_THREAD(soil_moisture_server, ev, data)
 
         // wait for the timer to expire
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+        if(registered){
+            if(etimer_expired(&et)){
+                leds_toggle(LEDS_GREEN);
+                etimer_restart(&et);
+            }
+        }
     }
     LOG_INFO("REGISTERED\nStarting motion server");
 
