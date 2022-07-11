@@ -86,50 +86,51 @@ void client_chunk_handler(coap_message_t *response)
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
-PROCESS_BEGIN();
+    PROCESS_BEGIN();
 
-static coap_endpoint_t server_ep;
-static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
+    static coap_endpoint_t server_ep;
+    static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
-etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
+    etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
 
-while (!connected) {
-PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
-check_connection();
-}
-LOG_INFO("CONNECTED\n");
+    while (!connected) {
+        PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
+        check_connection();
+        }
+        LOG_INFO("CONNECTED\n");
 
-while (!registered) {
-LOG_INFO("Sending registration message\n");
+    while (!registered) {
+        LOG_INFO("Sending registration message\n");
 
-coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+        coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
-coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-coap_set_header_uri_path(request, service_url);
-//nel payload abbiamo solo il tipo di sensore = alert_actuator
-coap_set_payload(request, (uint8_t*) SENSOR_TYPE, sizeof(SENSOR_TYPE) - 1);
-COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
+        coap_set_header_uri_path(request, service_url);
+        //nel payload abbiamo solo il tipo di sensore = alert_actuator
+        strcpy(msg, "{\"Resource\":\"%s}", SENSOR_TYPE);
+                coap_set_payload(request, (uint8_t*) msg, strlen(msg));
+        COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
-// wait for the timer to expire
-PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
-}
-LOG_INFO("REGISTERED\nStarting alert server");
+        // wait for the timer to expire
+        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+    }
+    LOG_INFO("REGISTERED\nStarting alert server");
 
-// RESOURCES ACTIVATION
-coap_activate_resource(&alert_actuator, "alert_actuator");
+    // RESOURCES ACTIVATION
+    coap_activate_resource(&alert_actuator, "alert_actuator");
 
-// SIMULATION
-etimer_set(&simulation, CLOCK_SECOND * interval);
-LOG_INFO("Simulation\n");
+    // SIMULATION
+    etimer_set(&simulation, CLOCK_SECOND * interval);
+    LOG_INFO("Simulation\n");
 
-while (1) {
-PROCESS_WAIT_EVENT();
+    while (1) {
+        PROCESS_WAIT_EVENT();
 
-if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
-alert_actuator.trigger();
-etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-}
-}
+        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
+            alert_actuator.trigger();
+            etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
+        }
+    }
 
-PROCESS_END();
+    PROCESS_END();
 }

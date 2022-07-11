@@ -101,16 +101,18 @@ PROCESS_THREAD(soil_moisture_server, ev, data)
 
         coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
         coap_set_header_uri_path(request, service_url);
-        coap_set_payload(request, (uint8_t*) SENSOR_TYPE, sizeof(SENSOR_TYPE) - 1);
+        char msg[300];
+        strcpy(msg, "{\"Resource\":\"%s}", SENSOR_TYPE);
+        coap_set_payload(request, (uint8_t*) msg, strlen(msg));
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
         // wait for the timer to expire
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
     }
-    LOG_INFO("REGISTERED\nStarting soil moisture server");
+    LOG_INFO("REGISTERED\nStarting motion server");
 
     // RESOURCES ACTIVATION
-    coap_activate_resource(&motion_sensor, "soil_moisture_sensor");
+    coap_activate_resource(&motion_sensor, "motion_sensor");
 
     // SIMULATION
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);

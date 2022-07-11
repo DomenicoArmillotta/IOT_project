@@ -39,7 +39,7 @@ class AdvancedResourceMotion(Resource):
         # Memorize source in dict to know destination address
         moteInfo["Source"] = request.source
 
-        motionResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
+        motionResource = MotionResource(moteInfo["Source"],moteInfo["Resource"])
         return self, response
 
 class AdvancedResourceAlert(Resource):
@@ -60,7 +60,7 @@ class AdvancedResourceAlert(Resource):
         response.code = defines.Codes.CONTENT.number
         # Memorize source in dict to know destination address
         moteInfo["Source"] = request.source
-        alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
+        alertResource = AlertResource(moteInfo["Source"],moteInfo["Resource"])
         return self, response
 '''
     def render_PUT_advanced(self, request, response):

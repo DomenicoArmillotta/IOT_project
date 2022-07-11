@@ -15,15 +15,13 @@ from datetime import datetime
 from alert_resource import AlertResource
 
 class MotionResource :
-    def __init__(self,source_address,resource,node_id,node_type):
+    def __init__(self,source_address,resource):
         # Initialize mote resource fields
         self.db = Database()
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.id = node_id
-        self.type = node_type
-        self.actuator_resource = "alert actuator"
+        self.actuator_resource = "alert_actuator"
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
@@ -40,7 +38,7 @@ class MotionResource :
             self.isDetected = isDetected[0]
             #when occour an intrusion a query is executed
             if self.isDetected == 'T':
-                #response per far cambiare stato all'allert
+                #response per far cambiare stato all'alert
                 response = self.client.post(self.actuator_resource,"ON")
                 #faccio la query quando trovo un intruso
                 self.execute_query(1)

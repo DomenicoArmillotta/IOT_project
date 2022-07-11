@@ -13,15 +13,13 @@ import tabulate
 import logging
 
 class AlertResource :
-    def __init__(self,source_address,resource,node_id,node_type):
+    def __init__(self,source_address,resource):
         # Initialize mote resource fields
         self.db = Database()
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.id = node_id
-        self.type = node_type
-        self.actuator_resource = "alert"
+        self.actuator_resource = "alert_actuator"
         self.intensity = 10;
         self.isActive = "F";
         # Start observing for updates
