@@ -93,3 +93,23 @@ class AdvancedResourceAlert(Resource):
         alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
         return self, response
 '''
+class AdvancedResourceAlertSwitch(Resource):
+
+    def __init__(self, name="Advanced"):
+        super(AdvancedResourceAlertSwitch, self).__init__(name)
+        self.payload = "Successful registration"
+
+    def render_GET_advanced(self, request, response):
+        print("GET server, received message:\n")
+        print(request.payload)
+        # Store the (id,port) request: print(request.source)
+        # Now, we extract the information from the json payload
+        moteInfo = json.loads(request.payload)
+        # Send a response with successful outcome
+        response.payload = self.payload
+        response.max_age = 20
+        response.code = defines.Codes.CONTENT.number
+        # Memorize source in dict to know destination address
+        moteInfo["Source"] = request.source
+        alertResource = AlertResource(moteInfo["Source"],moteInfo["Resource"])
+        return self, response
