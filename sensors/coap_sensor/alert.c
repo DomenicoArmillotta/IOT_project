@@ -106,6 +106,7 @@ coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
 coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
 coap_set_header_uri_path(request, service_url);
+//nel payload abbiamo solo il tipo di sensore = alert_actuator
 coap_set_payload(request, (uint8_t*) SENSOR_TYPE, sizeof(SENSOR_TYPE) - 1);
 COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 

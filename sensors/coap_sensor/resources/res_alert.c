@@ -52,31 +52,7 @@ static void get_intensity_handler(coap_message_t *request, coap_message_t *respo
     coap_set_payload(response, (uint8_t *)buffer, length);
 
 }
-//non usata --> gestione dell'intensità nella put
-static void put_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
-{
-    LOG_INFO("Handling intensity put request...\n");
 
-    size_t len = 0;
-    const uint8_t* payload = NULL;
-    bool success = true;
-
-    if((len = coap_get_payload(request, &payload)))
-    {
-        char* chunk = strtok((char*)payload, " ");
-
-        chunk = strtok(NULL, " ");
-        char* eptr;
-        intensity = strtod(chunk, &eptr);
-        printf("new_value: %f\n", intensity);
-
-        printf("Alarm intensity changed to %lf\n", intensity);
-    } else
-        success = false;
-
-    if(!success)
-        coap_set_status_code(response, BAD_REQUEST_4_00);
-}
 
 //usata per fare on/off
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)

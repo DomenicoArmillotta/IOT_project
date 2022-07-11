@@ -23,7 +23,7 @@ class MotionResource :
         self.resource = resource
         self.id = node_id
         self.type = node_type
-        self.actuator_resource = "alert"
+        self.actuator_resource = "alert actuator"
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
