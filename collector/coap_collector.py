@@ -3,6 +3,8 @@ import getopt
 import sys
 from coapthon.server.coap import CoAP
 from coapthon.resources.resource import Resource
+import threading
+from mqtt_collector import MqttClient
 import socket
 from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
@@ -43,6 +45,12 @@ class CoAPServer(CoAP):
 ip = "0.0.0.0"
 port = 5683
 
+print("Initializing server and MQTT client thread")
+mqttcl = MqttClient()
+# Before Initializing server, start a thread dedicated for the MQTT clients
+mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
+# mqtt_thread.daemon = True
+mqtt_thread.start()
 
 server = CoAPServer(ip, port)
 
