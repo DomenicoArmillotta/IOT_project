@@ -12,14 +12,13 @@
 #define EVENT_INTERVAL 30
 
 static bool isDetected = false;
-static char timestamp[9];
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-
+static void res_event_handler(void);
 
 //qui costruisco la response che devo dare al client
 
-RESOURCE(motion_sensor, //--> name
+EVENT_RESOURCE(motion_sensor, //--> name
 "title=\"Motion sensor: ?POST/PUT\";obs",   //---> descriptor (obs significa che è osservabile)
 res_get_handler, //--> handler
 NULL,
@@ -59,7 +58,7 @@ static void res_event_handler(void)
 
     bool new_isDetected = isDetected;
     if(random == 0){
-        new_isDetected=!isDetected
+        new_isDetected=!isDetected;
     }
 
     if(new_isDetected != isDetected){

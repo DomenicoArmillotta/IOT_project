@@ -11,21 +11,20 @@
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static bool isActive = true;
-static bool intensity = 10;
+static int intensity = 10;
 
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-static void put_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
 
 //qui costruisco la response che devo dare al client
 
-RESOURCE(alert_actuator, //--> name
+EVENT_RESOURCE(alert_actuator, //--> name
 "title=\"alert sensor: ?obs",   //---> descriptor (obs significa che è osservabile)
 get_intensity_handler,
 post_switch_handler,
-put_intensity_handler,
+NULL,
 NULL,
 res_event_handler); //--> handler invoke auto  every time the state of resource change
 
@@ -43,7 +42,9 @@ static void get_intensity_handler(coap_message_t *request, coap_message_t *respo
     strcpy(msg,"{\"info\":\"");
     strncat(msg,&val2,1);
     strcat(msg,"\" ");
-    strncat(msg,&intensity,1);
+    char* intensity_str = "";
+    sprintf(intensity_str, "%d", intensity);
+    strncat(msg,intensity_str,1);
     strcat(msg,"\"}");
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);

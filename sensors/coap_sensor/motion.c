@@ -4,6 +4,7 @@
 
 #include "contiki.h"
 #include "sys/etimer.h"
+#include "os/dev/leds.h"
 //#include "dev/leds.h"
 
 #include "node-id.h"
@@ -29,6 +30,8 @@
 
 PROCESS(motion_server, "Server for motion detector");
 AUTOSTART_PROCESSES(&motion_server);
+bool registered = false;
+bool connected = false;
 
 //*************************** GLOBAL VARIABLES *****************************//
 char* service_url = "/registration";
@@ -105,7 +108,9 @@ PROCESS_THREAD(motion_server, ev, data)
         coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
         coap_set_header_uri_path(request, service_url);
         char msg[300];
-        strcpy(msg, "{\"Resource\":\"%s}", SENSOR_TYPE);
+        char* sensor_type = "";
+        sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
+        strcpy(msg, sensor_type);
         coap_set_payload(request, (uint8_t*) msg, strlen(msg));
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 

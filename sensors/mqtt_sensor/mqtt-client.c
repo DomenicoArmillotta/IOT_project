@@ -6,8 +6,6 @@
  * i dati vengono presi dall'app py in base al topic per l'elaborazione
  * USIAMO Mosquitto COME BROKER SULLA VM
  */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
 /*---------------------------------------------------------------------------*/
 #include "contiki.h"
 #include "net/routing/routing.h"
@@ -308,4 +306,3 @@ humidity = rand() % 101;
   PROCESS_END();
 }
 
-#pragma clang diagnostic pop

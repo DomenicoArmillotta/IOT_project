@@ -9,7 +9,9 @@
 #include "node-id.h"
 #include "net/ipv6/simple-udp.h"
 #include "net/ipv6/uip.h"
+#include "os/dev/leds.h"
 #include "net/ipv6/uip-ds6.h"
+#include "os/dev/button-hal.h"
 #include "net/ipv6/uip-debug.h"
 #include "routing/routing.h"
 
@@ -122,7 +124,10 @@ PROCESS_THREAD(alert_server, ev, data)
         coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
         coap_set_header_uri_path(request, service_url);
         //nel payload abbiamo solo il tipo di sensore = alert_actuator
-        strcpy(msg, "{\"Resource\":\"%s}", SENSOR_TYPE);
+        char msg[300];
+        char* sensor_type = "";
+        sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
+        strcpy(msg, sensor_type);
         coap_set_payload(request, (uint8_t*) msg, strlen(msg));
         COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
         registered = true;
@@ -143,7 +148,7 @@ PROCESS_THREAD(alert_server, ev, data)
     coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
 
     // SIMULATION
-    etimer_set(&simulation, CLOCK_SECOND * interval);
+    etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
     LOG_INFO("Simulation\n");
 
     while (1) {
