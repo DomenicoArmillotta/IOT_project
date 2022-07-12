@@ -49,6 +49,6 @@ static void get_switch_handler(coap_message_t *request, coap_message_t *response
 
 static void res_event_handler(void)
 {
-    if (isPressed)
-        coap_notify_observers(&alert_switch_actuator);
+    //if (isPressed)
+    coap_notify_observers(&alert_switch_actuator);
 }
