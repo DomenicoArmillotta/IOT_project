@@ -66,6 +66,21 @@ extern coap_resource_t alert_actuator;
 extern coap_resource_t  alert_switch_actuator;
 
 //*************************** UTILITY FUNCTIONS *****************************//
+static void check_connection()
+{
+    if (!NETSTACK_ROUTING.node_is_reachable())
+    {
+        LOG_INFO("BR not reachable\n");
+        etimer_reset(&wait_connectivity);
+    }
+    else
+    {
+        LOG_INFO("BR reachable");
+        // TODO: notificare in qualche modo che si è connessi
+        // gli altri hanno usato i led
+        connected = true;
+    }
+}
 
 void client_chunk_handler(coap_message_t *response)
 {
@@ -96,43 +111,22 @@ PROCESS_THREAD(alert_server, ev, data)
 
     static struct etimer et;
 
-    uip_ipaddr_t dest_ipaddr;
-    static unsigned int message_number = 0;
-
     PROCESS_BEGIN();
     etimer_set(&et, 2*CLOCK_SECOND);
 
     btn = button_hal_get_by_index(0);
+
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
     etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
 
-    simple_udp_register(&udp_conn, UDP_CLIENT_PORT, NULL, UDP_SERVER_PORT, udp_rx_callback);
-
     while (!connected) {
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
-        if (NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr))
-        {
-             LOG_INFO("BR reachable");
-            // TODO: notificare in qualche modo che si è connessi
-            connected = true;
-            LOG_INFO("Sending request %u to ", message_number);
-            LOG_INFO_6ADDR(&dest_ipaddr);
-            LOG_INFO_("\n");
-            char buf[300];
-            sprintf(buf, "Message %d from node %d", message_number, node_id);
-            message_number++;
-            simple_udp_sendto(&udp_conn, buf, strlen(buf) + 1, &dest_ipaddr);
+        check_connection();
         }
-        else
-        {
-           LOG_INFO("BR not reachable\n");
-           etimer_reset(&wait_connectivity);
-        }
-    }
-    LOG_INFO("CONNECTED\n");
+        LOG_INFO("CONNECTED\n");
 
     while (!registered) {
         LOG_INFO("Sending registration message\n");
