@@ -66,27 +66,6 @@ extern coap_resource_t alert_actuator;
 extern coap_resource_t  alert_switch_actuator;
 
 //*************************** UTILITY FUNCTIONS *****************************//
-static void check_connection()
-{
-    if (NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr))
-    {
-         LOG_INFO("BR reachable");
-        // TODO: notificare in qualche modo che si è connessi
-        connected = true;
-        LOG_INFO("Sending request %u to ", message_number);
-        LOG_INFO_6ADDR(&dest_ipaddr);
-        LOG_INFO_("\n");
-        char buf[300];
-        sprintf(buf, "Message %d from node %d", message_number, node_id);
-        message_number++;
-        simple_udp_sendto(&udp_conn, buf, strlen(buf) + 1, &dest_ipaddr);
-    }
-    else
-    {
-       LOG_INFO("BR not reachable\n");
-       etimer_reset(&wait_connectivity);
-    }
-}
 
 void client_chunk_handler(coap_message_t *response)
 {
@@ -134,7 +113,24 @@ PROCESS_THREAD(alert_server, ev, data)
 
     while (!connected) {
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
-        check_connection();
+        if (NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr))
+        {
+             LOG_INFO("BR reachable");
+            // TODO: notificare in qualche modo che si è connessi
+            connected = true;
+            LOG_INFO("Sending request %u to ", message_number);
+            LOG_INFO_6ADDR(&dest_ipaddr);
+            LOG_INFO_("\n");
+            char buf[300];
+            sprintf(buf, "Message %d from node %d", message_number, node_id);
+            message_number++;
+            simple_udp_sendto(&udp_conn, buf, strlen(buf) + 1, &dest_ipaddr);
+        }
+        else
+        {
+           LOG_INFO("BR not reachable\n");
+           etimer_reset(&wait_connectivity);
+        }
     }
     LOG_INFO("CONNECTED\n");
 
