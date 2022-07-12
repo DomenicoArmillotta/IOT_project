@@ -25,6 +25,10 @@
 #define SIMULATION_INTERVAL 30
 #define TIMEOUT_INTERVAL 30
 
+#define UDP_CLIENT_PORT	8765
+#define UDP_SERVER_PORT	5678
+static struct simple_udp_connection udp_conn;
+
 
 /* Log configuration */
 #include "sys/log.h"
@@ -36,6 +40,13 @@ double intensity = 5.0;
 
 PROCESS(alert_server, "Server for the alert actuator");
 AUTOSTART_PROCESSES(&alert_server);
+
+static void udp_rx_callback(struct simple_udp_connection *c, const uip_ipaddr_t *sender_addr,
+         uint16_t sender_port, const uip_ipaddr_t *receiver_addr, uint16_t receiver_port, const uint8_t *data, uint16_t datalen){
+  LOG_INFO("Received response %s ", data);
+  LOG_INFO_6ADDR(sender_addr);
+  LOG_INFO_("\n");
+}
 
 //*************************** GLOBAL VARIABLES *****************************//
 char* service_url = "/registration";
@@ -57,17 +68,23 @@ extern coap_resource_t  alert_switch_actuator;
 //*************************** UTILITY FUNCTIONS *****************************//
 static void check_connection()
 {
-    if (!NETSTACK_ROUTING.node_is_reachable())
+    if (NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr))
     {
-        LOG_INFO("BR not reachable\n");
-        etimer_reset(&wait_connectivity);
+         LOG_INFO("BR reachable");
+        // TODO: notificare in qualche modo che si è connessi
+        connected = true;
+        LOG_INFO("Sending request %u to ", message_number);
+        LOG_INFO_6ADDR(&dest_ipaddr);
+        LOG_INFO_("\n");
+        char buf[300];
+        sprintf(buf, "Message %d from node %d", message_number, node_id);
+        message_number++;
+        simple_udp_sendto(&udp_conn, buf, strlen(buf) + 1, &dest_ipaddr);
     }
     else
     {
-        LOG_INFO("BR reachable");
-        // TODO: notificare in qualche modo che si è connessi
-        // gli altri hanno usato i led
-        connected = true;
+       LOG_INFO("BR not reachable\n");
+       etimer_reset(&wait_connectivity);
     }
 }
 
@@ -95,26 +112,31 @@ void client_chunk_handler(coap_message_t *response)
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
+
     button_hal_button_t *btn;
 
-   static struct etimer et;
+    static struct etimer et;
 
-   PROCESS_BEGIN();
-   etimer_set(&et, 2*CLOCK_SECOND);
+    uip_ipaddr_t dest_ipaddr;
+    static unsigned int message_number = 0;
+
+    PROCESS_BEGIN();
+    etimer_set(&et, 2*CLOCK_SECOND);
 
     btn = button_hal_get_by_index(0);
-
 
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
     etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
 
+    simple_udp_register(&udp_conn, UDP_CLIENT_PORT, NULL, UDP_SERVER_PORT, udp_rx_callback);
+
     while (!connected) {
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
         check_connection();
-        }
-        LOG_INFO("CONNECTED\n");
+    }
+    LOG_INFO("CONNECTED\n");
 
     while (!registered) {
         LOG_INFO("Sending registration message\n");
