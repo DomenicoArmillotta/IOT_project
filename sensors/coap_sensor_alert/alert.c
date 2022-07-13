@@ -42,12 +42,12 @@ AUTOSTART_PROCESSES(&alert_server);
 //*************************** GLOBAL VARIABLES *****************************//
 char* service_url = "/registration";
 
-static bool connected = false;
+//static bool connected = false;
 static bool registered = false;
 bool pressed = false;
 
 
-static struct etimer wait_connectivity;
+//static struct etimer wait_connectivity;
 static struct etimer wait_registration;
 static struct etimer simulation;
 static struct etimer timeout_timer;
@@ -57,7 +57,7 @@ extern coap_resource_t alert_actuator;
 extern coap_resource_t  alert_switch_actuator;
 
 //*************************** UTILITY FUNCTIONS *****************************//
-static void check_connection()
+/*static void check_connection()
 {
     if (!NETSTACK_ROUTING.node_is_reachable())
     {
@@ -71,7 +71,7 @@ static void check_connection()
         // gli altri hanno usato i led
         connected = true;
     }
-}
+}*/
 
 void client_chunk_handler(coap_message_t *response)
 {
@@ -102,38 +102,50 @@ PROCESS_THREAD(alert_server, ev, data)
 
     static struct etimer et;
 
+    uip_ipaddr_t dest_ipaddr;
+
     PROCESS_BEGIN();
     etimer_set(&et, 2*CLOCK_SECOND);
 
     btn = button_hal_get_by_index(0);
 
-
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
+    coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+    etimer_set(&wait_registration, CLOCK_SECOND * CONN_TRY_INTERVAL);
 
-    etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
-
-    while (!connected) {
+    /*while (!connected) {
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
         check_connection();
-        }
-        LOG_INFO("CONNECTED\n");
+    }
+    LOG_INFO("CONNECTED\n");*/
 
     while (!registered) {
-        LOG_INFO("Sending registration message\n");
+        printf("Waiting connection..\n");
+        PROCESS_YIELD();
 
-        coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+        if((ev == PROCESS_EVENT_TIMER && data == &register_timer) || ev == PROCESS_EVENT_POLL) {
 
-        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-        coap_set_header_uri_path(request, service_url);
-        //nel payload abbiamo solo il tipo di sensore = alert_actuator
-        char msg[300];
-        char* sensor_type = "";
-        sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
-        strcpy(msg, sensor_type);
-        coap_set_payload(request, (uint8_t*) msg, strlen(msg));
-        COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
-        registered = true;
+            if(NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)){
+                printf("--Registration--\n");
+
+                coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+                coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
+                char msg[300];
+                char* sensor_type = "";
+                sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
+                strcpy(msg, sensor_type);
+                coap_set_payload(request, (uint8_t*) msg, strlen(msg));
+                COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+                registered = true;
+                break;
+            }
+
+            else{
+                printf("Not rpl address yet\n");
+            }
+            etimer_reset(&register_timer);
+        }
 
         // wait for the timer to expire
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
