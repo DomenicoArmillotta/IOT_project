@@ -42,8 +42,7 @@ extern coap_resource_t motion_sensor;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(coap_client, "CoAP Client");
-PROCESS(sensor_node, "Sensor node");
-AUTOSTART_PROCESSES(&coap_client, &sensor_node);
+AUTOSTART_PROCESSES(&coap_client);
 
 /*---------------------------------------------------------------------------*/
 void response_handler(coap_message_t *response){
@@ -103,22 +102,12 @@ PROCESS_THREAD(coap_client, ev, data){
         }
     }
 
-    //LOG_INFO("REGISTERED\nStarting motion server");
-
-    // RESOURCES ACTIVATION
-    //coap_activate_resource(&motion_sensor, "motion_sensor");
-
-    PROCESS_END();
-}
-
-PROCESS_THREAD(sensor_node, ev, data){
-    PROCESS_BEGIN();
+    LOG_INFO("REGISTERED\nStarting motion server\n");
     coap_activate_resource(&motion_sensor, "motion_sensor");
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-
+    LOG_INFO("Simulation\n");
     while (1) {
         PROCESS_YIELD();
-        LOG_INFO("Simulation\n");
         //ogni 30 secondi triggera il controllo e genera random isDetected
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
             motion_sensor.trigger();
@@ -127,3 +116,5 @@ PROCESS_THREAD(sensor_node, ev, data){
     }
     PROCESS_END();
 }
+
+

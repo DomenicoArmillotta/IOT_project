@@ -32,11 +32,12 @@
 #define LOG_MODULE "NODE"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
+#define SERVER_REGISTRATION "registration"
+
 /* RESOURCES */
 double intensity = 5.0;
 
 //*************************** GLOBAL VARIABLES *****************************//
-char* service_url = "/registration";
 
 //static bool connected = false;
 static bool registered = false;
@@ -115,7 +116,7 @@ PROCESS_THREAD(alert_server, ev, data)
     etimer_set(&et, 2*CLOCK_SECOND);
     btn = button_hal_get_by_index(0);
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
-    etimer_set(&wait_registration, CLOCK_SECOND * CONN_TRY_INTERVAL);
+    etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
 
     /*while (!connected) {
         PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
@@ -133,7 +134,7 @@ PROCESS_THREAD(alert_server, ev, data)
                 printf("--Registration--\n");
 
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-                coap_set_header_uri_path(request, (const char *)&service_url);
+                coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
                 char msg[300];
                 strcpy(msg, "{\"Resource\":");
                 strcat(msg, SENSOR_TYPE);
@@ -141,7 +142,7 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
                 registered = true;
-                leds_toggle(LEDS_GREEN);
+                //leds_toggle(LEDS_GREEN);
                 break;
             }
 
@@ -152,15 +153,16 @@ PROCESS_THREAD(alert_server, ev, data)
         }
 
         // wait for the timer to expire
-        /*PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
         if(registered){
             if(etimer_expired(&et)){
+                printf("Signal registration\n");
                 leds_toggle(LEDS_GREEN);
                 etimer_restart(&et);
             }
-        }*/
+        }
     }
-    LOG_INFO("REGISTERED\nStarting alert server");
+    LOG_INFO("REGISTERED\nStarting alert server\n");
 
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
