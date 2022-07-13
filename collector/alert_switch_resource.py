@@ -24,20 +24,20 @@ class AlertSwitchResource :
         # Start observing for updates
         self.start_observing()
 
-    #salvo l'intensità dell'allarme
+    # salvo l'intensità dell'allarme
     def pressure_callback_observer(self, response):
         print("Callback called, resource arrived")
         if response.payload is not None:
             print(response.payload)
             nodeData = json.loads(response.payload)
-            #read from payload of client
+            # read from payload of client
             info = nodeData["info"].split(" ")
             print("Detection value :")
             print(info)
             self.isDetected = info[0]
             response = self.client.post(self.actuator_resource,"OFF")
 
-    #non è efficente fare query al db per mettere in store quando è acceso l'allarme
+    # non è efficente fare query al db per mettere in store quando è acceso l'allarme
     def start_observing(self):
         logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)
         logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)

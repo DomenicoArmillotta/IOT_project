@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from database import Database
 import tabulate
-#USIAMO Mosquitto COME BROKER SULLA VM
+# USIAMO Mosquitto COME BROKER SULLA VM
 
 
 
@@ -21,7 +21,7 @@ class MqttClient:
     '''
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
-        #topic a cui mi voglio iscrivere
+        # topic a cui mi voglio iscrivere
         self.client.subscribe("info")
 
     ''' 
@@ -41,7 +41,7 @@ class MqttClient:
             light = "RELAX"
         else:
             light = "DARK"
-        #faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
+        # faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
         with self.connection.cursor() as cursor:
             # Create a new record
             sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"

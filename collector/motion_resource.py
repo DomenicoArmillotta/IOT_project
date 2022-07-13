@@ -31,19 +31,19 @@ class MotionResource :
         if response.payload is not None:
             print(response.payload)
             nodeData = json.loads(response.payload)
-            #read from payload of client
+            # read from payload of client
             isDetected = nodeData["isDetected"].split(" ")
             print("Detection value :")
             print(isDetected)
             self.isDetected = isDetected[0]
-            #when occour an intrusion a query is executed
+            # when occour an intrusion a query is executed
             if self.isDetected == 'T':
-                #response per far cambiare stato all'alert
+                # response per far cambiare stato all'alert
                 response = self.client.post(self.actuator_resource,"ON")
-                #faccio la query quando trovo un intruso
+                # faccio la query quando trovo un intruso
                 self.execute_query(1)
             else:
-                #quando non c'è un intruso cambio solo lo stato , ma senza query
+                # quando non c'è un intruso cambio solo lo stato , ma senza query
                 response = self.client.post(self.actuator_resource,"OFF")
 
 
