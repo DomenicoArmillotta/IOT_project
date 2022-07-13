@@ -27,19 +27,15 @@
 #define TIMEOUT_INTERVAL 30
 
 static struct etimer register_timer;
-static struct etimer timeout_timer;
+static struct etimer simulation;
 
 bool registered = false;
-
-char datas[10];
-
 
 extern coap_resource_t motion_sensor;
 
 
 /*---------------------------------------------------------------------------*/
 PROCESS(coap_client, "CoAP Client");
-PROCESS(sensor_node, "Sensor node");
 AUTOSTART_PROCESSES(&coap_client, &sensor_node);
 
 /*---------------------------------------------------------------------------*/
@@ -62,94 +58,65 @@ void response_handler(coap_message_t *response){
 //si illumina se si connette
 PROCESS_THREAD(coap_client, ev, data){
 
-static coap_endpoint_t server_ep;
-static coap_message_t request[1];
-uip_ipaddr_t dest_ipaddr;
+    static coap_endpoint_t server_ep;
+    static coap_message_t request[1];
+    uip_ipaddr_t dest_ipaddr;
 
-PROCESS_BEGIN();
-leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+    PROCESS_BEGIN();
+    leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
+    coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
-etimer_set(&register_timer, TOGGLE_INTERVAL * CLOCK_SECOND);
+    etimer_set(&register_timer, TOGGLE_INTERVAL * CLOCK_SECOND);
 
-while(1) {
+    while(1) {
 
-printf("Waiting connection..\n");
-PROCESS_YIELD();
+        printf("Waiting connection..\n");
+        PROCESS_YIELD();
 
-if((ev == PROCESS_EVENT_TIMER && data == &register_timer) || ev == PROCESS_EVENT_POLL) {
+        if((ev == PROCESS_EVENT_TIMER && data == &register_timer) || ev == PROCESS_EVENT_POLL) {
 
-if(NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)){
-printf("--Registration--\n");
+            if(NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)){
+                printf("--Registration--\n");
 
-coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
-char msg[300];
-strcpy(msg,"{\"NodeType\":\"Both\",\"MoteResource\":\"client\",\"NodeID\":");
-char node[2];
-sprintf(node,"%d",node_id);
-strcat(msg,node);
-strcat(msg,"}");
-printf("%s\n", msg);
-coap_set_payload(request, (uint8_t *)msg, strlen(msg));
+                coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+                coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
+                char msg[300];
+                strcpy(msg,"{\"NodeType\":\"Both\",\"MoteResource\":\"client\",\"NodeID\":");
+                char node[2];
+                sprintf(node,"%d",node_id);
+                strcat(msg,node);
+                strcat(msg,"}");
+                printf("%s\n", msg);
+                coap_set_payload(request, (uint8_t *)msg, strlen(msg));
+                COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
+                registered = true;
+                break;
+            }
 
+            else{
+                printf("Not rpl address yet\n");
+            }
+            etimer_reset(&register_timer);
+        }
+    }
 
-COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
-registered = true;
-break;
-}
+     LOG_INFO("REGISTERED\nStarting motion server");
 
-else{
-printf("Not rpl address yet\n");
-}
-etimer_reset(&register_timer);
-}
-}
+    // RESOURCES ACTIVATION
+    coap_activate_resource(&motion_sensor, "motion_sensor");
 
-PROCESS_END();
-}
+    // SIMULATION
+    etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
+    LOG_INFO("Simulation\n");
 
+    while (1) {
+        PROCESS_WAIT_EVENT();
+        //ogni 30 secondi triggera il controllo e genera random isDetected
+        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
+            motion_sensor.trigger();
+            etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
+        }
+    }
 
-/*---------------------------------------------------------------------------*/
-/**
- * Node behave as coap_server in order to publish messages
- */
-//si comporta come server perchè ha i sensori e manda una notifica al client quando lo stato della risorsa cambia
-//in questo caso le funzioni dei sensori "Lock"
-//define app specific event here --> preso da contiki
-//nei vari eventi contiki chiama i trigger
-PROCESS_THREAD(sensor_node, ev, data){
-
-
-PROCESS_BEGIN();
-
-
-
-coap_activate_resource(&motion_sensor, "motion_sensor");
-
-
-while (1) {
-
-PROCESS_YIELD();
-
-
-
-
-
-if ((ev == PROCESS_EVENT_TIMER) && data == &timeout_timer) {
-// Timeout when too much time interoccur between button press and input credentials
-if (registered) {
-// Restore the normal workflow
-printf("prova!\n");
-motion_sensor.trigger();
-}
-}
-
-
-
-
-}
-
-
-PROCESS_END();
+    PROCESS_END();
 }
