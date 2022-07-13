@@ -144,7 +144,7 @@ PROCESS_THREAD(alert_server, ev, data)
             else{
                 printf("Not rpl address yet\n");
             }
-            etimer_reset(&register_timer);
+            etimer_reset(&wait_registration);
         }
 
         // wait for the timer to expire
