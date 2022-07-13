@@ -1,147 +1,155 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "contiki.h"
-#include "sys/etimer.h"
-#include "os/dev/leds.h"
-//#include "dev/leds.h"
-
-#include "node-id.h"
+#include "net/routing/routing.h"
+#include "random.h"
+#include "net/netstack.h"
 #include "net/ipv6/simple-udp.h"
-#include "net/ipv6/uip.h"
-#include "net/ipv6/uip-ds6.h"
-#include "net/ipv6/uip-debug.h"
-#include "routing/routing.h"
+#include "sys/node-id.h"
+#include "os/dev/button-hal.h"
+#include "os/dev/serial-line.h"
+#include "os/dev/leds.h"
 
 #include "coap-engine.h"
 #include "coap-blocking-api.h"
 
-#define SERVER_EP "coap://[fd00::1]:5683"
-#define CONN_TRY_INTERVAL 1
-#define REG_TRY_INTERVAL 1
-#define SIMULATION_INTERVAL 30
-#define SENSOR_TYPE "motion_sensor"
-
-/* Log configuration */
 #include "sys/log.h"
-#define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_APP
+#include "sys/etimer.h"
 
-PROCESS(motion_server, "Server for motion detector");
-AUTOSTART_PROCESSES(&motion_server);
+#define LOG_MODULE "NODE"
+#define LOG_LEVEL LOG_LEVEL_INFO
+
+#define UDP_CLIENT_PORT	8765
+#define UDP_SERVER_PORT	5678
+
+#define SERVER_EP "coap://[fd00::1]:5683"
+#define SERVER_REGISTRATION "registration"
+
+#define TOGGLE_INTERVAL 10
+#define TIMEOUT_INTERVAL 30
+
+static struct etimer register_timer;
+static struct etimer timeout_timer;
+
 bool registered = false;
-bool connected = false;
 
-//*************************** GLOBAL VARIABLES *****************************//
-char* service_url = "/registration";
+char datas[10];
 
-static struct etimer wait_connectivity;
-static struct etimer wait_registration;
-static struct etimer simulation;
 
 extern coap_resource_t motion_sensor;
 
-//*************************** UTILITY FUNCTIONS *****************************//
-static void check_connection()
-{
-    if (!NETSTACK_ROUTING.node_is_reachable())
-    {
-        LOG_INFO("BR not reachable\n");
-        etimer_reset(&wait_connectivity);
-    }
-    else
-    {
-        LOG_INFO("BR reachable");
-        // TODO: notificare in qualche modo che si è connessi
-        // gli altri hanno usato i led
 
-        connected = true;
-    }
-}
+/*---------------------------------------------------------------------------*/
+PROCESS(coap_client, "CoAP Client");
+PROCESS(sensor_node, "Sensor node");
+AUTOSTART_PROCESSES(&coap_client, &sensor_node);
 
-void client_chunk_handler(coap_message_t *response)
-{
-    const uint8_t* chunk;
-
-    if (response == NULL)
-    {
-        LOG_INFO("Request timed out\n");
-        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
+/*---------------------------------------------------------------------------*/
+void response_handler(coap_message_t *response){
+    const uint8_t *chunk;
+    if(response == NULL) {
+        puts("Request timed out");
         return;
     }
-
     int len = coap_get_payload(response, &chunk);
+    printf("|%.*s\n", len, (char *)chunk);
+}
 
-    if(strncmp((char*)chunk, "Success", len) == 0){
-        registered = true;
-        //leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-    }
-    else
-        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
+/*---------------------------------------------------------------------------*/
+/**
+ * Node behave as coap_client in order to register to the rpl_border_router.
+ */
+//codice coap client client
+//serve solo per la connessione al border router dei sensori coap
+//si illumina se si connette
+PROCESS_THREAD(coap_client, ev, data){
+
+static coap_endpoint_t server_ep;
+static coap_message_t request[1];
+uip_ipaddr_t dest_ipaddr;
+
+PROCESS_BEGIN();
+leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
+coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+
+etimer_set(&register_timer, TOGGLE_INTERVAL * CLOCK_SECOND);
+
+while(1) {
+
+printf("Waiting connection..\n");
+PROCESS_YIELD();
+
+if((ev == PROCESS_EVENT_TIMER && data == &register_timer) || ev == PROCESS_EVENT_POLL) {
+
+if(NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)){
+printf("--Registration--\n");
+
+coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
+char msg[300];
+strcpy(msg,"{\"NodeType\":\"Both\",\"MoteResource\":\"client\",\"NodeID\":");
+char node[2];
+sprintf(node,"%d",node_id);
+strcat(msg,node);
+strcat(msg,"}");
+printf("%s\n", msg);
+coap_set_payload(request, (uint8_t *)msg, strlen(msg));
+
+
+COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
+registered = true;
+break;
+}
+
+else{
+printf("Not rpl address yet\n");
+}
+etimer_reset(&register_timer);
+}
+}
+
+PROCESS_END();
 }
 
 
-//*************************** THREAD *****************************//
-PROCESS_THREAD(motion_server, ev, data)
-{
-    static struct etimer et;
-
-    PROCESS_BEGIN();
-    etimer_set(&et, 2*CLOCK_SECOND);
-    static coap_endpoint_t server_ep;
-    static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
-
-    etimer_set(&wait_connectivity, CLOCK_SECOND * CONN_TRY_INTERVAL);
-    //connection
-    while (!connected) {
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
-        check_connection();
-    }
-    LOG_INFO("CONNECTED\n");
-
-    while (!registered) {
-        LOG_INFO("Sending registration message\n");
-
-        coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
-
-        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-        coap_set_header_uri_path(request, service_url);
-        char msg[300];
-        char* sensor_type = "";
-        sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
-        strcpy(msg, sensor_type);
-        coap_set_payload(request, (uint8_t*) msg, strlen(msg));
-        COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
-
-        // wait for the timer to expire
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
-        if(registered){
-            if(etimer_expired(&et)){
-                leds_toggle(LEDS_GREEN);
-                etimer_restart(&et);
-            }
-        }
-    }
-    LOG_INFO("REGISTERED\nStarting motion server");
-
-    // RESOURCES ACTIVATION
-    coap_activate_resource(&motion_sensor, "motion_sensor");
-
-    // SIMULATION
-    etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-    LOG_INFO("Simulation\n");
-
-    while (1) {
-    PROCESS_WAIT_EVENT();
-        //ogni 30 secondi triggera il controllo e genera random isDetected
-        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
-            motion_sensor.trigger();
-            etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-        }
-    }
-
-    PROCESS_END();
+/*---------------------------------------------------------------------------*/
+/**
+ * Node behave as coap_server in order to publish messages
+ */
+//si comporta come server perchè ha i sensori e manda una notifica al client quando lo stato della risorsa cambia
+//in questo caso le funzioni dei sensori "Lock"
+//define app specific event here --> preso da contiki
+//nei vari eventi contiki chiama i trigger
+PROCESS_THREAD(sensor_node, ev, data){
 
 
+PROCESS_BEGIN();
+
+
+
+coap_activate_resource(&motion_sensor, "motion_sensor");
+
+
+while (1) {
+
+PROCESS_YIELD();
+
+
+
+
+
+if ((ev == PROCESS_EVENT_TIMER) && data == &timeout_timer) {
+// Timeout when too much time interoccur between button press and input credentials
+if (registered) {
+// Restore the normal workflow
+printf("prova!\n");
+motion_sensor.trigger();
+}
+}
+
+
+
+
+}
+
+
+PROCESS_END();
 }
