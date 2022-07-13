@@ -23,6 +23,9 @@
 #define SERVER_EP "coap://[fd00::1]:5683"
 #define SERVER_REGISTRATION "registration"
 
+
+#define SENSOR_TYPE "motion_sensor"
+#define SIMULATION_INTERVAL 30
 #define TOGGLE_INTERVAL 10
 #define TIMEOUT_INTERVAL 30
 
