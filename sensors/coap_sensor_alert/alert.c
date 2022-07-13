@@ -32,7 +32,7 @@
 #define LOG_MODULE "NODE"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
-#define SERVER_REGISTRATION "registration"
+#define SERVER_REGISTRATION "/registration"
 
 /* RESOURCES */
 double intensity = 5.0;
@@ -113,7 +113,7 @@ PROCESS_THREAD(alert_server, ev, data)
 
     PROCESS_BEGIN();
 
-    etimer_set(&et, 2*CLOCK_SECOND);
+    etimer_set(&et, 10*CLOCK_SECOND);
     btn = button_hal_get_by_index(0);
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
     etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
@@ -153,14 +153,14 @@ PROCESS_THREAD(alert_server, ev, data)
         }
 
         // wait for the timer to expire
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+        /*PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
         if(registered){
             if(etimer_expired(&et)){
                 printf("Signal registration\n");
                 leds_toggle(LEDS_GREEN);
                 etimer_restart(&et);
             }
-        }
+        }*/
     }
     LOG_INFO("REGISTERED\nStarting alert server\n");
 
