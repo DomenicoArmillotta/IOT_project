@@ -77,7 +77,7 @@ AUTOSTART_PROCESSES(&alert_server);
 
 void client_chunk_handler(coap_message_t *response)
 {
-    const uint8_t* chunk;
+    /*const uint8_t* chunk;
 
     if (response == NULL)
     {
@@ -91,7 +91,15 @@ void client_chunk_handler(coap_message_t *response)
     if(strncmp((char*)chunk, "Success", len) == 0)
         registered = true;
     else
-        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
+        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);*/
+
+    const uint8_t *chunk;
+    if(response == NULL) {
+        puts("Request timed out");
+        return;
+    }
+    int len = coap_get_payload(response, &chunk);
+    printf("|%.*s\n", len, (char *)chunk);
 }
 
 //*************************** THREAD *****************************//
@@ -134,6 +142,7 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
                 registered = true;
+                leds_toggle(LEDS_GREEN);
                 break;
             }
 
@@ -144,13 +153,13 @@ PROCESS_THREAD(alert_server, ev, data)
         }
 
         // wait for the timer to expire
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+        /*PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
         if(registered){
             if(etimer_expired(&et)){
                 leds_toggle(LEDS_GREEN);
                 etimer_restart(&et);
             }
-        }
+        }*/
     }
     LOG_INFO("REGISTERED\nStarting alert server");
 
