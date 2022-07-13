@@ -92,6 +92,7 @@ PROCESS_THREAD(coap_client, ev, data){
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
                 registered = true;
+                leds_toggle(LEDS_GREEN);
                 break;
             }
 

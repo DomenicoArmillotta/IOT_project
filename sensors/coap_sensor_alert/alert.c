@@ -142,7 +142,7 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
                 registered = true;
-                //leds_toggle(LEDS_GREEN);
+                leds_toggle(LEDS_GREEN);
                 break;
             }
 
@@ -152,15 +152,6 @@ PROCESS_THREAD(alert_server, ev, data)
             etimer_reset(&wait_registration);
         }
 
-        // wait for the timer to expire
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
-        if(registered){
-            if(etimer_expired(&et)){
-                printf("Signal registration\n");
-                leds_toggle(LEDS_GREEN);
-                etimer_restart(&et);
-            }
-        }
     }
     LOG_INFO("REGISTERED\nStarting alert server\n");
 
