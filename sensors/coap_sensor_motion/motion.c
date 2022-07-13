@@ -36,7 +36,7 @@ extern coap_resource_t motion_sensor;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(coap_client, "CoAP Client");
-AUTOSTART_PROCESSES(&coap_client, &sensor_node);
+AUTOSTART_PROCESSES(&coap_client);
 
 /*---------------------------------------------------------------------------*/
 void response_handler(coap_message_t *response){
