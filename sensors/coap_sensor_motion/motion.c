@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "contiki.h"
 #include "net/routing/routing.h"
 #include "random.h"
@@ -40,7 +43,7 @@ extern coap_resource_t motion_sensor;
 /*---------------------------------------------------------------------------*/
 PROCESS(coap_client, "CoAP Client");
 PROCESS(sensor_node, "Sensor node");
-AUTOSTART_PROCESSES(&coap_client);
+AUTOSTART_PROCESSES(&coap_client, &sensor_node);
 
 /*---------------------------------------------------------------------------*/
 void response_handler(coap_message_t *response){
