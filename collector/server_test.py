@@ -42,7 +42,7 @@ def main():
     except KeyboardInterrupt:
         print("Server Shutdown")
         # mqtt_thread.kill()
-        mqtt_thread.join()
+        #mqtt_thread.join()
         server.close()
         print("Exiting...")
 
