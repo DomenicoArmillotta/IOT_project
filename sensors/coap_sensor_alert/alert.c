@@ -19,7 +19,6 @@
 #include "coap-blocking-api.h"
 
 #define SERVER_EP "coap://[fd00::1]:5683"
-#define CONN_TRY_INTERVAL 1
 #define REG_TRY_INTERVAL 10
 #define SENSOR_TYPE "alert_actuator"
 #define SIMULATION_INTERVAL 30
@@ -30,8 +29,8 @@
 
 /* Log configuration */
 #include "sys/log.h"
-#define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_APP
+#define LOG_MODULE "NODE"
+#define LOG_LEVEL LOG_LEVEL_INFO
 
 /* RESOURCES */
 double intensity = 5.0;
