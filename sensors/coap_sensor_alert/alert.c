@@ -124,13 +124,13 @@ PROCESS_THREAD(alert_server, ev, data)
         printf("Waiting connection..\n");
         PROCESS_YIELD();
 
-        if((ev == PROCESS_EVENT_TIMER && data == &register_timer) || ev == PROCESS_EVENT_POLL) {
+        if((ev == PROCESS_EVENT_TIMER && data == &wait_registration) || ev == PROCESS_EVENT_POLL) {
 
             if(NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)){
                 printf("--Registration--\n");
 
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-                coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
+                coap_set_header_uri_path(request, (const char *)&service_url);
                 char msg[300];
                 char* sensor_type = "";
                 sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
