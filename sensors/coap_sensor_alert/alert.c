@@ -20,7 +20,7 @@
 
 #define SERVER_EP "coap://[fd00::1]:5683"
 #define CONN_TRY_INTERVAL 1
-#define REG_TRY_INTERVAL 1
+#define REG_TRY_INTERVAL 10
 #define SENSOR_TYPE "alert_actuator"
 #define SIMULATION_INTERVAL 30
 #define TIMEOUT_INTERVAL 30
@@ -35,9 +35,6 @@
 
 /* RESOURCES */
 double intensity = 5.0;
-
-PROCESS(alert_server, "Server for the alert actuator");
-AUTOSTART_PROCESSES(&alert_server);
 
 //*************************** GLOBAL VARIABLES *****************************//
 char* service_url = "/registration";
@@ -57,6 +54,11 @@ extern coap_resource_t alert_actuator;
 extern coap_resource_t  alert_switch_actuator;
 
 //*************************** UTILITY FUNCTIONS *****************************//
+
+
+PROCESS(alert_server, "Server for the alert actuator");
+AUTOSTART_PROCESSES(&alert_server);
+
 /*static void check_connection()
 {
     if (!NETSTACK_ROUTING.node_is_reachable())
@@ -92,25 +94,19 @@ void client_chunk_handler(coap_message_t *response)
         etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
 }
 
-
-
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
-
     button_hal_button_t *btn;
-
     static struct etimer et;
-
     uip_ipaddr_t dest_ipaddr;
-
-    PROCESS_BEGIN();
-    etimer_set(&et, 2*CLOCK_SECOND);
-
-    btn = button_hal_get_by_index(0);
-
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
+
+    PROCESS_BEGIN();
+
+    etimer_set(&et, 2*CLOCK_SECOND);
+    btn = button_hal_get_by_index(0);
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
     etimer_set(&wait_registration, CLOCK_SECOND * CONN_TRY_INTERVAL);
 
