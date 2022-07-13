@@ -135,9 +135,9 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
                 coap_set_header_uri_path(request, (const char *)&service_url);
                 char msg[300];
-                char* sensor_type = "";
-                sprintf(sensor_type, "{\"Resource\":\"%s}", SENSOR_TYPE);
-                strcpy(msg, sensor_type);
+                strcpy(msg, "{\"Resource\":");
+                strcat(msg, SENSOR_TYPE);
+                strcat(msg, "}");
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
                 registered = true;
