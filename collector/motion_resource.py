@@ -43,7 +43,7 @@ class MotionResource :
                 # faccio la query quando trovo un intruso
                 self.execute_query(1)
             else:
-                # quando non c'è un intruso cambio solo lo stato , ma senza query
+                # quando non c'e' un intruso cambio solo lo stato , ma senza query
                 response = self.client.post(self.actuator_resource,"OFF")
 
 
