@@ -220,7 +220,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   while(1) {
 
     PROCESS_YIELD();
-
+    printf("Waiting for connection or event\n");
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) ||
 	      ev == PROCESS_EVENT_POLL){
 
