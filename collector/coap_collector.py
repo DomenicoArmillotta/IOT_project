@@ -26,8 +26,8 @@ class Alarm(Resource):
         self.interface_type = "if1"
 
 class AlarmSwitch(Resource):
-    def __init__(self, name="Alarm", coap_server=None):
-        super(Alarm, self).__init__(name, coap_server, visible=True, observable=True, allow_children=True)
+    def __init__(self, name="AlarmSwitch", coap_server=None):
+        super(AlarmSwitch, self).__init__(name, coap_server, visible=True, observable=True, allow_children=True)
         self.payload = "Alarm Switch Resource"
         self.resource_type = "alert_switch_actuator"
         self.content_type = "text/plain"
