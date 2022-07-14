@@ -33,20 +33,20 @@ def main():
     logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)
     logging.getLogger("coapthon.client.coap").setLevel(logging.WARNING)
 
-    # print("Initializing server and MQTT client thread")
-    # mqttcl = MqttClient()
+    print("Initializing server and MQTT client thread")
+    mqttcl = MqttClient()
     # Before Initializing server, start a thread dedicated for the MQTT clients
-    # mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
-    # mqtt_thread.daemon = True
-    # mqtt_thread.start()
+    mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
+    mqtt_thread.daemon = True
+    mqtt_thread.start()
     # Start server on the main thread
     server = CoAPServer(ip, port)
     try:
         server.listen(100)
     except KeyboardInterrupt:
         print("Server Shutdown")
-        # mqtt_thread.kill()
-        # mqtt_thread.join()
+        mqtt_thread.kill()
+        mqtt_thread.join()
         server.close()
         print("Exiting...")
 
