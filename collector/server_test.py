@@ -3,6 +3,8 @@ from coapthon.server.coap import CoAP
 import threading
 from mqtt_collector import MqttClient
 from coap_collector import Motion
+from coap_collector import Alarm
+from coap_collector import AlarmSwitch
 import database
 import logging
 
@@ -19,6 +21,8 @@ class CoAPServer(CoAP):
         CoAP.__init__(self, (host, port), False)
         # Register resource: server behave as client in order to get the registration
         self.add_resource("Motion/", Motion())
+        self.add_resource("Alarm/", Alarm())
+        self.add_resource("AlarmSwitch/", AlarmSwitch())
 
 '''
     Main function. Logging is suppressed, some users are generated with respective passwords 
