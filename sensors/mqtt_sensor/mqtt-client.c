@@ -108,8 +108,7 @@ PROCESS(mqtt_publisher,"MQTT Publisher");
 
 
 /*---------------------------------------------------------------------------*/
-static void
-pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
+static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             uint16_t chunk_len)
 {
   printf("Pub Handler: topic='%s' (len=%u), chunk_len=%u\n", topic,
@@ -125,8 +124,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 /*---------------------------------------------------------------------------*/
 //in base all'evento dell mqtt assegna l'evento allo stato
 //default dal prof
-static void
-mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
+static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
 {
   switch(event) {
   case MQTT_EVENT_CONNECTED: {
@@ -178,14 +176,16 @@ mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
 }
 
 //come prof
-static bool
-have_connectivity(void)
+static bool have_connectivity()
 {
   if(uip_ds6_get_global(ADDR_PREFERRED) == NULL ||
      uip_ds6_defrt_choose() == NULL) {
     return false;
   }
-  return true;
+  else
+  {
+    return true;
+  }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -220,6 +220,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   while(1) {
 
     PROCESS_YIELD();
+    LOG_INFO("MQTT CLIENT PROCESS\n");
     printf("Waiting for connection or event\n");
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) ||
 	      ev == PROCESS_EVENT_POLL){
@@ -232,6 +233,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 
 		  if(state == STATE_NET_OK){
 			  // Connect to MQTT server
+			  LOG_INFO("Connecting to MQTT server\n");
 			  printf("Connecting!\n");
 
 			  memcpy(broker_address, broker_ip, strlen(broker_ip));
