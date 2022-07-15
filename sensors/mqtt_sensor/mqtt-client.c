@@ -193,7 +193,8 @@ static bool have_connectivity()
 //posso avere anche piu topic ma in questo caso ho solo wheather
 PROCESS_THREAD(mqtt_client_process, ev, data)
 {
-
+  LOG_INFO("MQTT CLIENT PROCESS 1\n");
+  printf("Waiting for connection or event\n");
   PROCESS_BEGIN();
 
   // mqtt_status_t status;
@@ -220,7 +221,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   while(1) {
 
     PROCESS_YIELD();
-    LOG_INFO("MQTT CLIENT PROCESS\n");
+    LOG_INFO("MQTT CLIENT PROCESS 2\n");
     printf("Waiting for connection or event\n");
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) ||
 	      ev == PROCESS_EVENT_POLL){
