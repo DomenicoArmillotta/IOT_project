@@ -221,8 +221,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   while(1) {
 
     PROCESS_YIELD();
-    LOG_INFO("MQTT CLIENT PROCESS 2\n");
-    printf("Waiting for connection or event\n");
+    printf("Loop 1");
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) ||
 	      ev == PROCESS_EVENT_POLL){
 
@@ -279,6 +278,8 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(mqtt_publisher,ev,data) {
 
+  LOG_INFO("MQTT CLIENT PROCESS 2\n");
+  printf("Waiting for connection or event\n");
   PROCESS_BEGIN();
 
   // Initialize periodic timer to check the status
@@ -287,7 +288,7 @@ PROCESS_THREAD(mqtt_publisher,ev,data) {
 
   while (1) {
     PROCESS_YIELD();
-
+    printf("Loop2");
     if ((ev == PROCESS_EVENT_TIMER && data == &publish_timer)) {
       if (state == STATE_SUBSCRIBED) {
         // Publish something , specify tag of topic
