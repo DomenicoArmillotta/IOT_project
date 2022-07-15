@@ -203,7 +203,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
                   MAX_TCP_SEGMENT_SIZE);
 
   state=STATE_INIT;
-  printf("Intitial state\n")
+  printf("Intitial state\n");
   // Initialize periodic timer to check the status
   etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
 
