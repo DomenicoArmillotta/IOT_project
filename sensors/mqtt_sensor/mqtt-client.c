@@ -177,7 +177,7 @@ static bool have_connectivity()
   }
   else
   {
-    print("No connectivity\n");
+    printf("No connectivity\n");
     return true;
   }
 }
