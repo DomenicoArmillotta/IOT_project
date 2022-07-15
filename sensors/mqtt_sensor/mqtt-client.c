@@ -35,7 +35,7 @@
 /* MQTT broker address. */
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
-static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
+static char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 
 // Defaukt config values
 #define DEFAULT_BROKER_PORT         1883
@@ -197,7 +197,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   printf("Waiting for connection or event\n");
   PROCESS_BEGIN();
   printf("START 1");
-  mqtt_status_t status;
+  //mqtt_status_t status;
   //char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
   printf("MQTT Client Process\n");
