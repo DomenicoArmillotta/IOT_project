@@ -173,11 +173,12 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
 static bool have_connectivity()
 {
   if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL) {
+    printf("No connectivity\n");
     return false;
   }
   else
   {
-    printf("No connectivity\n");
+    printf("Has cnnectivity!\n");
     return true;
   }
 }
