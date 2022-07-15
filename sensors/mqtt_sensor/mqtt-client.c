@@ -194,9 +194,9 @@ static bool have_connectivity()
 PROCESS_THREAD(mqtt_client_process, ev, data)
 {
   PROCESS_BEGIN();
-  LOG_INFO("MQTT CLIENT PROCESS 1\n");
+  /*LOG_INFO("MQTT CLIENT PROCESS 1\n");
   printf("Waiting for connection or event\n");
-  printf("START 1");
+  printf("START 1");*/
   //mqtt_status_t status;
   //char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
@@ -278,8 +278,8 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(mqtt_publisher,ev,data) {
   PROCESS_BEGIN();
-  LOG_INFO("MQTT CLIENT PROCESS 2\n");
-  printf("Waiting for connection or event\n");
+  //LOG_INFO("MQTT CLIENT PROCESS 2\n");
+  printf("Publisher\n");
   // Initialize periodic timer to check the status
   //ogni 30 secondi manda un evento
   etimer_set(&publish_timer, PERIODIC_TIMER*CLOCK_SECOND);
