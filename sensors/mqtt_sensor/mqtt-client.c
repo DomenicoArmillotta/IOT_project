@@ -171,8 +171,7 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
 
 static bool have_connectivity()
 {
-  if(uip_ds6_get_global(ADDR_PREFERRED) == NULL ||
-     uip_ds6_defrt_choose() == NULL) {
+  if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL) {
     return false;
   }
   else
@@ -215,7 +214,9 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL){
       printf("Event!\n");
       if(state==STATE_INIT){
+         printf("Test Connectivity!\n");
          if(have_connectivity()==true)
+             printf("Connectivity verified!");
              state = STATE_NET_OK;
       }
 
