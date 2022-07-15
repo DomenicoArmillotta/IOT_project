@@ -203,7 +203,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
                   MAX_TCP_SEGMENT_SIZE);
 
   state=STATE_INIT;
-
+  printf("Intitial state\n")
   // Initialize periodic timer to check the status
   etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
 
@@ -211,8 +211,9 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   while(1) {
 
     PROCESS_YIELD();
-    printf("Loop 1");
+
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL){
+      printf("Event!\n");
       if(state==STATE_INIT){
          if(have_connectivity()==true)
              state = STATE_NET_OK;
@@ -240,7 +241,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 
       if (state == STATE_SUBSCRIBED) {
         // Publish something , specify tag of topic
-          sprintf(pub_topic, "%s", "info");
+        sprintf(pub_topic, "%s", "info");
 
         sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
 
@@ -255,10 +256,11 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
              strlen(app_buffer), MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);
       }
       else if ( state == STATE_DISCONNECTED ){
-  		   LOG_ERR("Disconnected form MQTT broker\n");
-  		   // Recover from error
+  		LOG_ERR("Disconnected form MQTT broker\n");
+  		// Recover from error
       }
-		etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
+	  etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
+	  printf("End Loop\n");
     }
 
   }
