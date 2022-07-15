@@ -169,6 +169,7 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
   }
 }
 
+//TODO: restituisce sempre false, risolvere!!
 static bool have_connectivity()
 {
   if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL) {
@@ -176,6 +177,7 @@ static bool have_connectivity()
   }
   else
   {
+    print("No connectivity\n");
     return true;
   }
 }
