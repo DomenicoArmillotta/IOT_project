@@ -215,9 +215,10 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
       printf("Event!\n");
       if(state==STATE_INIT){
          printf("Test Connectivity!\n");
-         if(have_connectivity()==true)
-             printf("Connectivity verified!");
-             state = STATE_NET_OK;
+         if(have_connectivity()==true){
+            printf("Connectivity verified!");
+            state = STATE_NET_OK;
+         }
       }
 
       if(state == STATE_NET_OK){
