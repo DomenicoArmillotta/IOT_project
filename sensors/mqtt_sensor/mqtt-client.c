@@ -41,7 +41,6 @@ static char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
 
-
 // We assume that the broker does not require authentication
 
 
@@ -61,8 +60,7 @@ static uint8_t state;
 //runno i due processi
 //uno per il client e uno per la pubblicazione sulla coda con valori randomici
 PROCESS_NAME(mqtt_client_process);
-PROCESS_NAME(mqtt_publisher);
-AUTOSTART_PROCESSES(&mqtt_client_process,&mqtt_publisher);
+AUTOSTART_PROCESSES(&mqtt_client_process);
 
 /*---------------------------------------------------------------------------*/
 /* Maximum TCP segment size for outgoing segments of our socket */
@@ -89,7 +87,6 @@ static int gas = 0;
 static struct etimer periodic_timer;
 
 #define PERIODIC_TIMER 30
-static struct etimer publish_timer;
 /*---------------------------------------------------------------------------*/
 /*
  * The main MQTT buffers.
@@ -104,9 +101,6 @@ static struct mqtt_connection conn;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(mqtt_client_process, "MQTT Client");
-PROCESS(mqtt_publisher,"MQTT Publisher");
-
-
 /*---------------------------------------------------------------------------*/
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             uint16_t chunk_len)
@@ -175,7 +169,6 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
   }
 }
 
-//come prof
 static bool have_connectivity()
 {
   if(uip_ds6_get_global(ADDR_PREFERRED) == NULL ||
@@ -190,13 +183,10 @@ static bool have_connectivity()
 
 /*---------------------------------------------------------------------------*/
 //SUBSCRIBER
-//posso avere anche piu topic ma in questo caso ho solo wheather
+//posso avere anche piu topic ma in questo caso ho solo weather
 PROCESS_THREAD(mqtt_client_process, ev, data)
 {
   PROCESS_BEGIN();
-  /*LOG_INFO("MQTT CLIENT PROCESS 1\n");
-  printf("Waiting for connection or event\n");
-  printf("START 1");*/
   //mqtt_status_t status;
   //char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
@@ -222,93 +212,56 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 
     PROCESS_YIELD();
     printf("Loop 1");
-    if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) ||
-	      ev == PROCESS_EVENT_POLL){
-
-		  if(state==STATE_INIT){
-			 if(have_connectivity()==true)
-				 state = STATE_NET_OK;
-
-		  }
-
-		  if(state == STATE_NET_OK){
-			  // Connect to MQTT server
-			  LOG_INFO("Connecting to MQTT server\n");
-			  printf("Connecting!\n");
-
-			  //memcpy(broker_address, broker_ip, strlen(broker_ip));
-
-              //mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
-              //             (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-              //             MQTT_CLEAN_SESSION_ON);
-
-			  mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
-						   (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-						   MQTT_CLEAN_SESSION_ON);
-			  state = STATE_CONNECTING;
-		  }
-
-		  if(state==STATE_CONNECTED){
-              //non faccio l'iscrizione al topic perche lo faccio in py con l'app
-			  state = STATE_SUBSCRIBED;
-		  }
-
-
-  		if(state == STATE_SUBSCRIBED){
-              //la pubblicazione la faccio in un altro processo con valori randomici
-              //subito sotto
-        printf("Nothing\n");
-
-  		} else if ( state == STATE_DISCONNECTED ){
-  		   LOG_ERR("Disconnected form MQTT broker\n");
-  		   // Recover from error
+    if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL){
+      if(state==STATE_INIT){
+         if(have_connectivity()==true)
+             state = STATE_NET_OK;
       }
 
-		etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
+      if(state == STATE_NET_OK){
+          // Connect to MQTT server
+          LOG_INFO("Connecting to MQTT server\n");
+          printf("Connecting!\n");
+          //memcpy(broker_address, broker_ip, strlen(broker_ip));
 
-    }
+          //mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
+          //             (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
+          //             MQTT_CLEAN_SESSION_ON);
+          mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
+                       (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
+                       MQTT_CLEAN_SESSION_ON);
+          state = STATE_CONNECTING;
+      }
 
+      if(state==STATE_CONNECTED){
+          //non faccio l'iscrizione al topic perche lo faccio in py con l'app
+          state = STATE_SUBSCRIBED;
+      }
 
-  }
-
-  PROCESS_END();
-}
-
-//PUBLISHER
-/*---------------------------------------------------------------------------*/
-PROCESS_THREAD(mqtt_publisher,ev,data) {
-  PROCESS_BEGIN();
-  //LOG_INFO("MQTT CLIENT PROCESS 2\n");
-  printf("Publisher\n");
-  // Initialize periodic timer to check the status
-  //ogni 30 secondi manda un evento
-  etimer_set(&publish_timer, PERIODIC_TIMER*CLOCK_SECOND);
-
-  while (1) {
-    PROCESS_YIELD();
-    printf("Loop2");
-    if ((ev == PROCESS_EVENT_TIMER && data == &publish_timer)) {
       if (state == STATE_SUBSCRIBED) {
         // Publish something , specify tag of topic
-		    sprintf(pub_topic, "%s", "info");
+          sprintf(pub_topic, "%s", "info");
 
-  			sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
+        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
 
-              value = rand() % 36;
-humidity = rand() % 101;
+        value = rand() % 36;
+        humidity = rand() % 101;
         light = rand() % 3;
         gas = rand() % 100;
 
         printf("Message: %s\n",app_buffer);
-            //code to publish the message
-  			mqtt_publish(&conn, NULL, pub_topic, (uint8_t *)app_buffer,
-                 strlen(app_buffer), MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);
+        //code to publish the message
+        mqtt_publish(&conn, NULL, pub_topic, (uint8_t *)app_buffer,
+             strlen(app_buffer), MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);
       }
-        //reset of timer
-      etimer_reset(&publish_timer);
+      else if ( state == STATE_DISCONNECTED ){
+  		   LOG_ERR("Disconnected form MQTT broker\n");
+  		   // Recover from error
+      }
+		etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
     }
+
   }
 
   PROCESS_END();
 }
-
