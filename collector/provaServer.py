@@ -1,5 +1,6 @@
 # Import package
 import paho.mqtt.client as mqtt
+import argparse
 
 # Define Variables
 MQTT_HOST = "localhost"
@@ -10,13 +11,13 @@ MQTT_MSG = "hello MQTT"
 
 # Define on connect event function
 # We shall subscribe to our Topic in this function
-def on_connect(mosq, obj, rc):
+def on_connect(self, mosq, obj, rc):
     mqttc.subscribe(MQTT_TOPIC, 0)
 
 # Define on_message event function.
 # This function will be invoked every time,
 # a new message arrives for the subscribed topic
-def on_message(mosq, obj, msg, properties=None):
+def on_message(mosq, obj, msg):
     print ("Topic: " + str(msg.topic))
     print ("QoS: " + str(msg.qos))
     print ("Payload: " + str(msg.payload))
