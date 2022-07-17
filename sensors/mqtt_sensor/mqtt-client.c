@@ -212,9 +212,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
           LOG_INFO("Connecting to MQTT server\n");
           memcpy(broker_address, broker_ip, strlen(broker_ip));
 
-          mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
-                      (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-                      MQTT_CLEAN_SESSION_ON);
+          mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT, (DEFAULT_PUBLISH_INTERVAL * 3)/CLOCK_SECOND, MQTT_CLEAN_SESSION_ON);
           /*mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
                        (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
                        MQTT_CLEAN_SESSION_ON);*/
@@ -251,6 +249,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
       else if ( state == STATE_DISCONNECTED ){
   		LOG_ERR("Disconnected from MQTT broker\n");
   		// Recover from error
+  		state = STATE_INIT;
       }
 	  etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
     }
