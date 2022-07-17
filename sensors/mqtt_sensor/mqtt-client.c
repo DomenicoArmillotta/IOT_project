@@ -176,7 +176,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 {
   PROCESS_BEGIN();
   //mqtt_status_t status;
-  //char broker_address[CONFIG_IP_ADDR_STR_LEN];
+  char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
   printf("MQTT Client Process\n");
 
@@ -210,14 +210,14 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
       if(state == STATE_NET_OK){
           // Connect to MQTT server
           LOG_INFO("Connecting to MQTT server\n");
-          //memcpy(broker_address, broker_ip, strlen(broker_ip));
+          memcpy(broker_address, broker_ip, strlen(broker_ip));
 
-          //mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
-          //             (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-          //             MQTT_CLEAN_SESSION_ON);
-          mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
+          mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
+                      (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
+                      MQTT_CLEAN_SESSION_ON);
+          /*mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
                        (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-                       MQTT_CLEAN_SESSION_ON);
+                       MQTT_CLEAN_SESSION_ON);*/
           state = STATE_CONNECTING;
           printf("Connecting!\n");
       }
