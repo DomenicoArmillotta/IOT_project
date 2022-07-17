@@ -231,6 +231,10 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
           state = STATE_SUBSCRIBED;
       }
 
+      if(state==STATE_CONNECTING){
+          LOG_INFO("Not connected yet\n");
+      }
+
       if (state == STATE_SUBSCRIBED) {
         // Publish something , specify tag of topic
         sprintf(pub_topic, "%s", "info");
@@ -248,7 +252,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
              strlen(app_buffer), MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);
       }
       else if ( state == STATE_DISCONNECTED ){
-  		LOG_ERR("Disconnected form MQTT broker\n");
+  		LOG_ERR("Disconnected from MQTT broker\n");
   		// Recover from error
       }
 	  etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
