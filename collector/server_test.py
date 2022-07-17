@@ -37,7 +37,7 @@ def main():
     mqttcl = MqttClient()
     # Before Initializing server, start a thread dedicated for the MQTT clients
     mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
-    mqtt_thread.daemon = True
+    # mqtt_thread.daemon = True
     mqtt_thread.start()
     # Start server on the main thread
     server = CoAPServer(ip, port)

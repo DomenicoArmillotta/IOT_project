@@ -118,58 +118,47 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
 /*---------------------------------------------------------------------------*/
 //in base all'evento dell mqtt assegna l'evento allo stato
 //default dal prof
-static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
-{
-  switch(event) {
-  case MQTT_EVENT_CONNECTED: {
-    printf("Application has a MQTT connection\n");
 
-    state = STATE_CONNECTED;
-    break;
-  }
-  case MQTT_EVENT_DISCONNECTED: {
-    printf("MQTT Disconnect. Reason %u\n", *((mqtt_event_t *)data));
-
-    state = STATE_DISCONNECTED;
-    process_poll(&mqtt_client_process);
-    break;
-  }
-  case MQTT_EVENT_PUBLISH: {
-    msg_ptr = data;
-
-    pub_handler(msg_ptr->topic, strlen(msg_ptr->topic),
-                msg_ptr->payload_chunk, msg_ptr->payload_length);
-    break;
-  }
-  case MQTT_EVENT_SUBACK: {
-#if MQTT_311
-    mqtt_suback_event_t *suback_event = (mqtt_suback_event_t *)data;
-
-    if(suback_event->success) {
-      printf("Application is subscribed to topic successfully\n");
-    } else {
-      printf("Application failed to subscribe to topic (ret code %x)\n", suback_event->return_code);
-    }
-#else
-    printf("Application is subscribed to topic successfully\n");
-#endif
-    break;
-  }
-  case MQTT_EVENT_UNSUBACK: {
-    printf("Application is unsubscribed to topic successfully\n");
-    break;
-  }
-  case MQTT_EVENT_PUBACK: {
-    printf("Publishing complete.\n");
-    break;
-  }
-  default:
-    printf("Application got a unhandled MQTT event: %i\n", event);
-    break;
-  }
+static void mqtt_event(struct mqtt_connection* m, mqtt_event_t event, void* data){
+	switch(event){
+		case MQTT_EVENT_CONNECTED:
+			printf("The application has a MQTT connection\n");
+			state = STATE_CONNECTED;
+			break;
+		case MQTT_EVENT_DISCONNECTED:
+			printf("MQTT Disconnect. Reason %u\n", *((mqtt_event_t *)data));
+			state = STATE_DISCONNECTED;
+			process_poll(&mqtt_temperature_sensor);
+			break;
+		case MQTT_EVENT_PUBLISH:
+            msg_ptr = data;
+            pub_handler(msg_ptr->topic, strlen(msg_ptr->topic),
+                        msg_ptr->payload_chunk, msg_ptr->payload_length);
+            break;
+		case MQTT_EVENT_SUBACK:
+		#if MQTT_311
+			mqtt_suback_event_t *suback_event = (mqtt_suback_event_t *)data;
+			if(suback_event->success) {
+			printf("Application is subscribed to topic successfully\n");
+			} else {
+			printf("Application failed to subscribe to topic (ret code %x)\n", suback_event->return_code);
+			}
+		#else
+			printf("Application is subscribed to topic successfully\n");
+		#endif
+			break;
+		case MQTT_EVENT_UNSUBACK:
+			printf("Application is unsubscribed to topic successfully\n");
+			break;
+		case MQTT_EVENT_PUBACK:
+			printf("Publishing complete.\n");
+			break;
+		default:
+			printf("Application got a unhandled MQTT event: %i\n", event);
+			break;
+	}
 }
 
-//TODO: restituisce sempre false, risolvere!!
 static bool have_connectivity()
 {
   //if(uip_ds6_defrt_choose() == NULL) {
@@ -225,7 +214,6 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
       if(state == STATE_NET_OK){
           // Connect to MQTT server
           LOG_INFO("Connecting to MQTT server\n");
-          printf("Connecting!\n");
           //memcpy(broker_address, broker_ip, strlen(broker_ip));
 
           //mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT,
@@ -246,12 +234,12 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
         // Publish something , specify tag of topic
         sprintf(pub_topic, "%s", "info");
 
-        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
-
         value = rand() % 36;
         humidity = rand() % 101;
         light = rand() % 3;
         gas = rand() % 100;
+
+        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
 
         printf("Message: %s\n",app_buffer);
         //code to publish the message

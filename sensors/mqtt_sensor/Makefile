@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = LAB-mqtt
+CONTIKI_PROJECT = mqtt-client
 all: $(CONTIKI_PROJECT)
 
 CONTIKI = ../../../..
