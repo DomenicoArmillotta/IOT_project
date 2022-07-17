@@ -16,7 +16,7 @@ def on_connect(mosq, obj, rc):
 # Define on_message event function.
 # This function will be invoked every time,
 # a new message arrives for the subscribed topic
-def on_message(mosq, obj, msg):
+def on_message(mosq, obj, msg, properties=None):
     print ("Topic: " + str(msg.topic))
     print ("QoS: " + str(msg.qos))
     print ("Payload: " + str(msg.payload))
