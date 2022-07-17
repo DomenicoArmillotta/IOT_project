@@ -68,16 +68,6 @@ AUTOSTART_PROCESSES(&mqtt_client_process);
 /* Maximum TCP segment size for outgoing segments of our socket */
 #define MAX_TCP_SEGMENT_SIZE    32
 #define CONFIG_IP_ADDR_STR_LEN   64
-/*---------------------------------------------------------------------------*/
-/*
- * Buffers for Client ID and Topics.
- * Make sure they are large enough to hold the entire respective string
- */
-#define BUFFER_SIZE 64
-
-static char client_id[BUFFER_SIZE];
-static char pub_topic[BUFFER_SIZE];
-// static char sub_topic[BUFFER_SIZE];
 
 static int value = 0;
 static int humidity = 0;
@@ -100,6 +90,18 @@ static char app_buffer[APP_BUFFER_SIZE];
 static struct mqtt_message *msg_ptr = 0;
 
 static struct mqtt_connection conn;
+
+/*---------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------*/
+/*
+ * Buffers for Client ID and Topics.
+ * Make sure they are large enough to hold the entire respective string
+ */
+#define BUFFER_SIZE 64
+
+static char client_id[BUFFER_SIZE];
+static char pub_topic[BUFFER_SIZE];
 
 /*---------------------------------------------------------------------------*/
 PROCESS(mqtt_client_process, "MQTT Client");
@@ -161,17 +163,12 @@ static void mqtt_event(struct mqtt_connection* m, mqtt_event_t event, void* data
 	}
 }
 
-static bool have_connectivity()
-{
-  //if(uip_ds6_defrt_choose() == NULL) {
-  //if(uip_ds6_get_global(ADDR_PREFERRED) == NULL) {
-  if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL) {
-    printf("No connectivity\n");
-    return false;
-  }
-  return true;
+static bool have_connectivity(){
+	if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL)
+    	return false;
+  	else
+		return true;
 }
-
 /*---------------------------------------------------------------------------*/
 //SUBSCRIBER
 //posso avere anche piu topic ma in questo caso ho solo weather
@@ -183,17 +180,18 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 
   printf("MQTT Client Process\n");
 
-  // Initialize the ClientID as MAC address -->come prof
+  // Initialize the ClientID as MAC address
   snprintf(client_id, BUFFER_SIZE, "%02x%02x%02x%02x%02x%02x",
-                     linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
-                     linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
-                     linkaddr_node_addr.u8[6], linkaddr_node_addr.u8[7]);
+  					linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
+  					linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
+  					linkaddr_node_addr.u8[6], linkaddr_node_addr.u8[7]);
 
-  // Broker registration --> come prof
   mqtt_register(&conn, &mqtt_client_process, client_id, mqtt_event,
-                  MAX_TCP_SEGMENT_SIZE);
+                    MAX_TCP_SEGMENT_SIZE);
 
+  //Setting the initial state
   state=STATE_INIT;
+
   // Initialize periodic timer to check the status
   etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
 
@@ -227,6 +225,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
       }
 
       if(state==STATE_CONNECTED){
+           printf("Check connected\n");
           //non faccio l'iscrizione al topic perche lo faccio in py con l'app
           state = STATE_SUBSCRIBED;
       }
@@ -259,3 +258,5 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
 
   PROCESS_END();
 }
+
+
