@@ -186,8 +186,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   					linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
   					linkaddr_node_addr.u8[6], linkaddr_node_addr.u8[7]);
 
-  mqtt_register(&conn, &mqtt_client_process, client_id, mqtt_event,
-                    MAX_TCP_SEGMENT_SIZE);
+  mqtt_register(&conn, &mqtt_client_process, client_id, mqtt_event, MAX_TCP_SEGMENT_SIZE);
 
   //Setting the initial state
   state=STATE_INIT;

@@ -45,7 +45,7 @@ class MqttClient:
         with self.connection.cursor() as cursor:
             # Create a new record
             sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
-            cursor.execute(sql, (temp,humidity,light , gas))
+            cursor.execute(sql, (temp, humidity, light , gas))
 
         # Commit changes
         self.connection.commit()
