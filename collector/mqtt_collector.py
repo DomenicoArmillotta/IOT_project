@@ -73,6 +73,7 @@ class MqttClient:
         self.client.on_message = self.on_message
         try:
             self.client.connect("127.0.0.1", 1883, 60)
+            print("Connected\n")
         except Exception as e:
             print(str(e))
         self.client.loop_forever()

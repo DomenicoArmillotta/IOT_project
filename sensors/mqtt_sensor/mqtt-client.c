@@ -201,9 +201,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
     PROCESS_YIELD();
 
     if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL){
-      printf("Event!\n");
       if(state==STATE_INIT){
-         printf("Test Connectivity!\n");
          if(have_connectivity()==true){
             printf("Connectivity verified!\n");
             state = STATE_NET_OK;
@@ -256,7 +254,6 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   		// Recover from error
       }
 	  etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
-	  printf("End Loop\n");
     }
 
   }
