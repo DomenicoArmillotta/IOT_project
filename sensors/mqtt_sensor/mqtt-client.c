@@ -23,6 +23,8 @@
 
 #include <string.h>
 #include <strings.h>
+#include <time.h>
+
 /*---------------------------------------------------------------------------*/
 #define LOG_MODULE "mqtt-client"
 #ifdef MQTT_CLIENT_CONF_LOG_LEVEL
@@ -83,7 +85,7 @@ static int light = 0;
 static int gas = 0;
 
 // Periodic timer to check the state of the MQTT client
-#define STATE_MACHINE_PERIODIC (CLOCK_SECOND >> 1)
+#define STATE_MACHINE_PERIODIC  CLOCK_SECOND * 30
 static struct etimer periodic_timer;
 
 #define PERIODIC_TIMER 30
@@ -192,7 +194,6 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
                   MAX_TCP_SEGMENT_SIZE);
 
   state=STATE_INIT;
-  printf("Intitial state\n");
   // Initialize periodic timer to check the status
   etimer_set(&periodic_timer, STATE_MACHINE_PERIODIC);
 
@@ -239,7 +240,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
         light = rand() % 3;
         gas = rand() % 100;
 
-        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity,light,gas);
+        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity, light, gas);
 
         printf("Message: %s\n",app_buffer);
         //code to publish the message
