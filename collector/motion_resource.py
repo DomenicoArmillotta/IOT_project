@@ -57,7 +57,7 @@ class MotionResource :
             with self.connection.cursor() as cursor:
                 # Create a new record
                 time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-                sql = "INSERT INTO `coapsensorsMotion` (`value`, `timestamp`) VALUES (%s, %s)"
+                sql = "INSERT INTO `coapsensorsmotion` (`value`, `timestamp`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.isDetected, time))
 
             # connection is not autocommit by default. So you must commit to save

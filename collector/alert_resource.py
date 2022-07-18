@@ -48,7 +48,7 @@ class AlertResource :
             # Create a new record
             time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
             intensity = str(self.intensity)
-            sql = "INSERT INTO `coapsensorsAlarm` (`value`, `timestamp` , `intensity`) VALUES (%s, %s , %s)"
+            sql = "INSERT INTO `coapsensorsalarm` (`value`, `timestamp` , `intensity`) VALUES (%s, %s , %s)"
             cursor.execute(sql, (self.isDetected, time , intensity))
         # connection is not autocommit by default. So you must commit to save
         # your changes.
