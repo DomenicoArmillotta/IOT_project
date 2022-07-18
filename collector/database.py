@@ -20,6 +20,6 @@ class Database:
             self.connection = pymysql.connect(host='localhost',
                  user='root',
                  password='PASSWORD',
-                 database='datacollector',
+                 database='collector',
                  cursorclass=pymysql.cursors.DictCursor)
             return self.connection
