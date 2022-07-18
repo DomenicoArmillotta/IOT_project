@@ -40,7 +40,7 @@ static void get_switch_handler(coap_message_t *request, coap_message_t *response
         strcat(msg,"\"}");
         length = strlen(msg);
         memcpy(buffer, (uint8_t *)msg, length);
-
+        printf("MSG: %s\n", msg);
         coap_set_header_content_format(response, TEXT_PLAIN);
         coap_set_header_etag(response, (uint8_t *)&length, 1);
         coap_set_payload(response, (uint8_t *)buffer, length);

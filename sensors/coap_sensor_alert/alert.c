@@ -167,6 +167,7 @@ PROCESS_THREAD(alert_server, ev, data)
         PROCESS_WAIT_EVENT();
 
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
+            printf("Trigger Alert\n");
             alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }

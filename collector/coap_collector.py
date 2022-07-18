@@ -42,21 +42,21 @@ class CoAPServer(CoAP):
 
 
 
-ip = "0.0.0.0"
-port = 5683
+#ip = "0.0.0.0"
+#port = 5683
 
-print("Initializing server and MQTT client thread")
-mqttcl = MqttClient()
+#print("Initializing server and MQTT client thread")
+#mqttcl = MqttClient()
 # Before Initializing server, start a thread dedicated for the MQTT clients
-mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
+#mqtt_thread = threading.Thread(target=mqttcl.mqtt_client,args=(),kwargs={})
 # mqtt_thread.daemon = True
-mqtt_thread.start()
+#mqtt_thread.start()
 
-server = CoAPServer(ip, port)
+#server = CoAPServer(ip, port)
 
-try:
-    server.listen(10)
-except KeyboardInterrupt:
-    print("Server Shutdown")
-    server.close()
-    print("Exiting...")
+#try:
+#    server.listen(10)
+#except KeyboardInterrupt:
+#    print("Server Shutdown")
+#    server.close()
+#    print("Exiting...")

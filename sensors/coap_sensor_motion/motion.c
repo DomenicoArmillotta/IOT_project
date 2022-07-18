@@ -111,6 +111,7 @@ PROCESS_THREAD(coap_client, ev, data){
         PROCESS_YIELD();
         //ogni 30 secondi triggera il controllo e genera random isDetected
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
+            printf("Trigger Motion\n");
             motion_sensor.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }
