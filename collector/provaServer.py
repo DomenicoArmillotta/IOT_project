@@ -1,11 +1,17 @@
 # Import package
 import paho.mqtt.client as mqtt
+from coapthon.server.coap import CoAP
 import argparse
 import json
 from database import Database
 import tabulate
 import time
 import datetime
+import logging
+from coap_collector import Motion
+from coap_collector import Alarm
+from coap_collector import AlarmSwitch
+
 
 # Define Variables
 MQTT_HOST = "localhost"
@@ -13,6 +19,21 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 45
 MQTT_TOPIC = "info"
 MQTT_MSG = "hello MQTT"
+
+ip = "::"
+port = 5683
+
+'''
+    Class CoAPServer. Simply instantiate a CoAPServer (extends base class CoAP) and add a resource 
+    AdvancedResource, to manage registrations
+'''
+class CoAPServer(CoAP):
+    def __init__(self, host, port):
+        CoAP.__init__(self, (host, port), False)
+        # Register resource: server behave as client in order to get the registration
+        self.add_resource("Motion/", Motion())
+        self.add_resource("Alarm/", Alarm())
+        self.add_resource("AlarmSwitch/", AlarmSwitch())
 
 # Define on connect event function
 # We shall subscribe to our Topic in this function
@@ -62,6 +83,11 @@ def on_message(self, userdata, msg):
         print(tabulate.tabulate(rows,header,tablefmt='grid'))
 
 
+logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)
+logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)
+logging.getLogger("coapthon.client.coap").setLevel(logging.WARNING)
+
+
 # Initiate MQTT Client
 
 mqttc = mqtt.Client()
@@ -76,3 +102,12 @@ mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
 # Continue monitoring the incoming messages for subscribed topic
 mqttc.loop_forever()
+server = CoAPServer(ip, port)
+try:
+    server.listen(100)
+except KeyboardInterrupt:
+    print("Server Shutdown")
+    mqttc.kill()
+    mqttc.join()
+    server.close()
+    print("Exiting...")
