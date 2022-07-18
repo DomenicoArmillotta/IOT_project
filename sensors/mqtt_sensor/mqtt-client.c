@@ -239,7 +239,7 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
         light = rand() % 3;
         gas = rand() % 100;
 
-        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,,\"gas\":%d}", value, humidity, light, gas);
+        sprintf(app_buffer, "{\"temp\":%d,\"humidity\":%d,\"light\":%d,\"gas\":%d}", value, humidity, light, gas);
 
         printf("Message: %s\n",app_buffer);
         //code to publish the message
