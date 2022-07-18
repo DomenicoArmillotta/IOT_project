@@ -20,7 +20,7 @@ def on_connect(self, mosq, obj, rc):
 # Define on_message event function.
 # This function will be invoked every time,
 # a new message arrives for the subscribed topic
-def on_message(self,mosq, obj, msg):
+def on_message(self,msq, obj, msg):
     print ("Topic: " + str(msg.topic))
     print ("QoS: " + str(msg.qos))
     print ("Payload: " + str(msg.payload))
@@ -40,6 +40,11 @@ def on_message(self,mosq, obj, msg):
         # Create a new record
         sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
         cursor.execute(sql, (temp, humidity, light , gas))
+        print("temp : ")
+        print(temp)
+        print("humidity : ")
+        print(humidity)
+
 
     # Commit changes
     self.connection.commit()
@@ -54,14 +59,14 @@ def on_message(self,mosq, obj, msg):
 
 
 # Initiate MQTT Client
+
 mqttc = mqtt.Client()
+mqttc.db = Database()
+mqttc.connection = mqttc.db.connect_dbs()
 
 # Assign event callbacks
 mqttc.on_message = on_message
 mqttc.on_connect = on_connect
-mqttc.db = Database()
-mqttc.connection = mqttc.db.connect_dbs()
-
 # Connect with MQTT Broker
 mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
