@@ -4,6 +4,8 @@ import argparse
 import json
 from database import Database
 import tabulate
+import time
+import datetime
 
 # Define Variables
 MQTT_HOST = "localhost"
@@ -20,7 +22,7 @@ def on_connect(self, mosq, obj, rc):
 # Define on_message event function.
 # This function will be invoked every time,
 # a new message arrives for the subscribed topic
-def on_message(self,msq, obj, msg):
+def on_message(self, userdata, msg):
     print ("Topic: " + str(msg.topic))
     print ("QoS: " + str(msg.qos))
     print ("Payload: " + str(msg.payload))
@@ -35,11 +37,13 @@ def on_message(self,msq, obj, msg):
         light = "RELAX"
     else:
         light = "DARK"
+    ts = time.time()
+    timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
     # faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
     with self.connection.cursor() as cursor:
         # Create a new record
-        sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`) VALUES (%s, %s, %s , %s)"
-        cursor.execute(sql, (temp, humidity, light , gas))
+        sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`, `timestamp`) VALUES (%s, %s, %s , %s, %s)"
+        cursor.execute(sql, (temp, humidity, light, gas, timestamp))
         print("temp : ")
         print(temp)
         print("humidity : ")
