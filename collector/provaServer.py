@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 from coapthon.server.coap import CoAP
 from server import *;
 import argparse
+import threading
 import json
 from database import Database
 import tabulate
@@ -102,9 +103,11 @@ mqttc.on_message = on_message
 mqttc.on_connect = on_connect
 # Connect with MQTT Broker
 mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-
+mqtt_thread = threading.Thread(target=mqttc.mqtt_client,args=(),kwargs={})
+# mqtt_thread.daemon = True
+mqtt_thread.start()
 # Continue monitoring the incoming messages for subscribed topic
-mqttc.loop_forever()
+#mqttc.loop_forever()
 server = CoAPServer(ip, port)
 try:
     print("Listening to server")

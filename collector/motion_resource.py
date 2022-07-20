@@ -25,6 +25,7 @@ class MotionResource :
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
+        print("Motion resource initialized")
 
     def presence_callback_observer(self, response):
         print("Callback called, resource arrived")
@@ -46,6 +47,8 @@ class MotionResource :
             else:
                 # quando non c'e' un intruso cambio solo lo stato , ma senza query
                 response = self.client.post(self.actuator_resource,"OFF")
+        else:
+            return;
 
 
 

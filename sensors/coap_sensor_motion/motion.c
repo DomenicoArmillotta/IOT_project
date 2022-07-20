@@ -86,7 +86,7 @@ PROCESS_THREAD(coap_client, ev, data){
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
                 coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
                 char msg[300];
-                strcpy(msg, "{\"Resource\":\"motion\"}");
+                strcpy(msg, "{\"Resource\":\"motion_resource\"}");
                 //strcat(msg, SENSOR_TYPE);
                 //strcat(msg, "}");
                 printf("MSG: %s\n", msg);
@@ -105,7 +105,7 @@ PROCESS_THREAD(coap_client, ev, data){
     }
 
     LOG_INFO("REGISTERED\nStarting motion server\n");
-    coap_activate_resource(&motion_sensor, "motion_sensor");
+    coap_activate_resource(&motion_sensor, "motion_resource");
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
     LOG_INFO("Simulation\n");
     while (1) {
