@@ -20,12 +20,17 @@ registeredUsersDict = {}
     Advanced resource: manage automatically response to registration request. Creates a MoteResource object 
     each time a lock sensor register through the CoAPServer
 '''
-class AdvancedResourceMotion(Resource):
+#class AdvancedResourceMotion(Resource):
+
+  #  def __init__(self, name="Advanced"):
+  #      super(AdvancedResourceMotion, self).__init__(name)
+  #      self.payload = "Successful registration"
+
+class AdvancedResource(Resource):
 
     def __init__(self, name="Advanced"):
-        super(AdvancedResourceMotion, self).__init__(name)
+        super(AdvancedResource, self).__init__(name)
         self.payload = "Successful registration"
-
     def render_GET_advanced(self, request, response):
         print("GET server, received message:\n")
         print(request.payload)
@@ -93,6 +98,7 @@ class AdvancedResourceAlert(Resource):
         alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
         return self, response
 '''
+
 class AdvancedResourceAlertSwitch(Resource):
 
     def __init__(self, name="Advanced"):
@@ -104,8 +110,10 @@ class AdvancedResourceAlertSwitch(Resource):
         print(request.payload)
         # Store the (id,port) request: print(request.source)
         # Now, we extract the information from the json payload
+        #TODO: json.loads raises an exception
         moteInfo = json.loads(request.payload)
         # Send a response with successful outcome
+        print("Sending a response\n")
         response.payload = self.payload
         response.max_age = 20
         response.code = defines.Codes.CONTENT.number

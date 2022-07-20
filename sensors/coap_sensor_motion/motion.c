@@ -86,9 +86,10 @@ PROCESS_THREAD(coap_client, ev, data){
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
                 coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
                 char msg[300];
-                strcpy(msg, "{\"Resource\":");
-                strcat(msg, SENSOR_TYPE);
-                strcat(msg, "}");
+                strcpy(msg, "{\"Resource\":\"motion\"}");
+                //strcat(msg, SENSOR_TYPE);
+                //strcat(msg, "}");
+                printf("MSG: %s\n", msg);
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
                 registered = true;

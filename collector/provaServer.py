@@ -1,6 +1,7 @@
 # Import package
 import paho.mqtt.client as mqtt
 from coapthon.server.coap import CoAP
+from server import *;
 import argparse
 import json
 from database import Database
@@ -31,9 +32,11 @@ class CoAPServer(CoAP):
     def __init__(self, host, port):
         CoAP.__init__(self, (host, port), False)
         # Register resource: server behave as client in order to get the registration
-        self.add_resource("Motion/", Motion())
-        self.add_resource("Alarm/", Alarm())
-        self.add_resource("AlarmSwitch/", AlarmSwitch())
+        print("adding resource");
+        self.add_resource("registration", AdvancedResource())
+        ##self.add_resource("Motion/", Motion())
+        ##self.add_resource("Alarm/", Alarm())
+        ##self.add_resource("AlarmSwitch/", AlarmSwitch())
 
 # Define on connect event function
 # We shall subscribe to our Topic in this function
@@ -104,6 +107,7 @@ mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 mqttc.loop_forever()
 server = CoAPServer(ip, port)
 try:
+    print("Listening to server")
     server.listen(100)
 except KeyboardInterrupt:
     print("Server Shutdown")

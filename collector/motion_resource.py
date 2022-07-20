@@ -21,12 +21,12 @@ class MotionResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "alert_actuator"
+        self.actuator_resource = "motion"
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
 
-    def detection_callback_observer(self, response):
+    def presence_callback_observer(self, response):
         print("Callback called, resource arrived")
         if response.payload is not None:
             print(response.payload)
