@@ -34,7 +34,7 @@ class MotionResource :
             print(response.payload)
             nodeData = json.loads(response.payload)
             # read from payload of client
-            isDetected = nodeData["IsDetected"].split(" ")
+            isDetected = nodeData["isDetected"].split(" ")
             print("Detection value :")
             print(isDetected)
             self.isDetected = isDetected[0]
