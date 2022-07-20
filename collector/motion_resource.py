@@ -28,11 +28,12 @@ class MotionResource :
 
     def presence_callback_observer(self, response):
         print("Callback called, resource arrived")
+        print(response.payload)
         if response.payload is not None:
             print(response.payload)
             nodeData = json.loads(response.payload)
             # read from payload of client
-            isDetected = nodeData["isDetected"].split(" ")
+            isDetected = nodeData["IsDetected"].split(" ")
             print("Detection value :")
             print(isDetected)
             self.isDetected = isDetected[0]

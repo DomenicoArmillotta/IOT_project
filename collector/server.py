@@ -39,6 +39,7 @@ class AdvancedResource(Resource):
         moteInfo = json.loads(request.payload)
         # Send a response with successful outcome
         response.payload = self.payload
+        print(response.payload)
         response.max_age = 20
         response.code = defines.Codes.CONTENT.number
         # Memorize source in dict to know destination address

@@ -37,7 +37,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     // T = true
     // N = negative
     char val2 = isDetected == 1 ? 'T': 'N';
-    strcpy(msg,"{\"isDetected\":\"");
+    strcpy(msg,"{\"IsDetected\":\"");
     strncat(msg,&val2,1);
     strcat(msg,"\"}");
     length = strlen(msg);
@@ -51,8 +51,6 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 
 static void res_event_handler(void)
 {
-
-
     srand(time(NULL));
     int random = rand() % 2;
 
