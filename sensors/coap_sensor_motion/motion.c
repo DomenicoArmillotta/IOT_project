@@ -89,7 +89,7 @@ PROCESS_THREAD(coap_client, ev, data){
                 strcpy(msg, "{\"Resource\":\"motion_resource\"}");
                 //strcat(msg, SENSOR_TYPE);
                 //strcat(msg, "}");
-                printf("MSG: %s\n", msg);
+                printf("MSG registration motion.c : %s\n", msg);
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
                 registered = true;
