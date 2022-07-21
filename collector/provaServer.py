@@ -1,7 +1,7 @@
 # Import package
 import paho.mqtt.client as mqtt
 from coapthon.server.coap import CoAP
-from server import *;
+from server import *
 import argparse
 import threading
 import json
@@ -35,6 +35,8 @@ class CoAPServer(CoAP):
         # Register resource: server behave as client in order to get the registration
         print("adding resource");
         self.add_resource("registration", AdvancedResource())
+        self.add_resource("registration", AdvancedResourceAlert())
+        self.add_resource("registration", AdvancedResourceAlertSwitch())
         ##self.add_resource("Motion/", Motion())
         ##self.add_resource("Alarm/", Alarm())
         ##self.add_resource("AlarmSwitch/", AlarmSwitch())

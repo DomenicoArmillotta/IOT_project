@@ -32,7 +32,7 @@
 #define LOG_MODULE "NODE"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
-#define SERVER_REGISTRATION "/registration"
+#define SERVER_REGISTRATION "registration"
 
 /* RESOURCES */
 double intensity = 5.0;
@@ -57,42 +57,10 @@ extern coap_resource_t  alert_switch_actuator;
 
 
 PROCESS(alert_server, "Server for the alert actuator");
-AUTOSTART_PROCESSES(&alert_server);
+PROCESS(sensor_node, "Sensor node");
+AUTOSTART_PROCESSES(&alert_server, &sensor_node);
 
-/*static void check_connection()
-{
-    if (!NETSTACK_ROUTING.node_is_reachable())
-    {
-        LOG_INFO("BR not reachable\n");
-        etimer_reset(&wait_connectivity);
-    }
-    else
-    {
-        LOG_INFO("BR reachable");
-        // TODO: notificare in qualche modo che si è connessi
-        // gli altri hanno usato i led
-        connected = true;
-    }
-}*/
-
-void client_chunk_handler(coap_message_t *response)
-{
-    /*const uint8_t* chunk;
-
-    if (response == NULL)
-    {
-        LOG_INFO("Request timed out\n");
-        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
-        return;
-    }
-
-    int len = coap_get_payload(response, &chunk);
-
-    if(strncmp((char*)chunk, "Success", len) == 0)
-        registered = true;
-    else
-        etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);*/
-
+void response_handler(coap_message_t *response){
     const uint8_t *chunk;
     if(response == NULL) {
         puts("Request timed out");
@@ -118,12 +86,6 @@ PROCESS_THREAD(alert_server, ev, data)
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
     etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
 
-    /*while (!connected) {
-        PROCESS_WAIT_UNTIL(etimer_expired(&wait_connectivity));
-        check_connection();
-    }
-    LOG_INFO("CONNECTED\n");*/
-
     while (!registered) {
         printf("Waiting connection..\n");
         PROCESS_YIELD();
@@ -136,11 +98,9 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
                 coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
                 char msg[300];
-                strcpy(msg, "{\"Resource\":");
-                strcat(msg, SENSOR_TYPE);
-                strcat(msg, "}");
+                strcpy(msg, "{\"Resource\":\"alert_actuator\"}");
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
-                COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+                COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
                 registered = true;
                 leds_toggle(LEDS_GREEN);
                 break;
@@ -155,6 +115,13 @@ PROCESS_THREAD(alert_server, ev, data)
     }
     LOG_INFO("REGISTERED\nStarting alert server\n");
 
+    PROCESS_END();
+}
+
+
+PROCESS_THREAD(sensor_node, ev, data){
+
+	PROCESS_BEGIN();
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
     coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
@@ -192,8 +159,7 @@ PROCESS_THREAD(alert_server, ev, data)
 
             }
         }
-
     }
-
     PROCESS_END();
 }
+

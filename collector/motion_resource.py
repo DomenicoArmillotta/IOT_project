@@ -62,7 +62,8 @@ class MotionResource :
 
             with self.connection.cursor() as cursor:
                 # Create a new record
-                # time = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                # ts = time.time()
+                # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                 sql = "INSERT INTO `coapsensorsmotion` (`value`) VALUES (%s)"
                 cursor.execute(sql, (value))
 

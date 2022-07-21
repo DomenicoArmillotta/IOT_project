@@ -111,7 +111,6 @@ class AdvancedResourceAlertSwitch(Resource):
         print(request.payload)
         # Store the (id,port) request: print(request.source)
         # Now, we extract the information from the json payload
-        #TODO: json.loads raises an exception
         moteInfo = json.loads(request.payload)
         # Send a response with successful outcome
         print("Sending a response\n")

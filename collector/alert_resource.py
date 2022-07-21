@@ -46,10 +46,13 @@ class AlertResource :
         print(self.connection)
         with self.connection.cursor() as cursor:
             # Create a new record
-            time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            # ts = time.time()
+            # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
             intensity = str(self.intensity)
-            sql = "INSERT INTO `coapsensorsalarm` (`value`, `timestamp` , `intensity`) VALUES (%s, %s , %s)"
-            cursor.execute(sql, (self.isDetected, time , intensity))
+            # sql = "INSERT INTO `coapsensorsalarm` (`value`, `timestamp`, `intensity`) VALUES (%s, %s , %s)"
+            # cursor.execute(sql, (self.isDetected, time, intensity))
+            sql = "INSERT INTO `coapsensorsalarm` (`value`, `intensity`) VALUES (%s, %s)"
+            cursor.execute(sql, (self.isDetected, intensity))
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         self.connection.commit()
