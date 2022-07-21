@@ -41,11 +41,14 @@ static void get_intensity_handler(coap_message_t *request, coap_message_t *respo
     char val2 = isActive == 1 ? 'T': 'N';
     strcpy(msg,"{\"info\":\"");
     strncat(msg,&val2,1);
-    strcat(msg,"\" ");
-    char* intensity_str = "";
+    //strcat(msg,"\" \"");
+    strcat(msg,"\", \"intensity\":\"");
+    char intensity_str[400];
     sprintf(intensity_str, "%d", intensity);
-    strncat(msg,intensity_str,1);
+    //printf("intensity: %s\n", intensity_str);
+    strcat(msg,intensity_str);
     strcat(msg,"\"}");
+    printf("MSG: %s\n",msg);
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
 

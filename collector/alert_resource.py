@@ -24,19 +24,22 @@ class AlertResource :
         self.isActive = "F";
         # Start observing for updates
         self.start_observing()
+        print("Alert resource initialized")
 
     # salvo l'intensita' dell'allarme
-    def detection_callback_observer(self, response):
+    def presence_callback_observer(self, response):
         print("Callback called, resource arrived")
         if response.payload is not None:
             print(response.payload)
             nodeData = json.loads(response.payload)
             # read from payload of client
             info = nodeData["info"].split(" ")
+            intensity = nodeData["intensity"].split(" ")
             print("Detection value :")
             print(info)
+            print(intensity)
             self.isDetected = info[0]
-            self.intensity = info[1];
+            self.intensity = intensity[0];
             # when occour an intrusion a query is executed
             if self.isActive == 'T':
                 self.execute_query()

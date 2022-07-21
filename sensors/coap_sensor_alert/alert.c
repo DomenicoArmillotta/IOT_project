@@ -32,7 +32,7 @@
 #define LOG_MODULE "NODE"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
-#define SERVER_REGISTRATION "registration"
+#define SERVER_REGISTRATION "registrationAlert"
 
 /* RESOURCES */
 double intensity = 5.0;
@@ -73,7 +73,6 @@ void response_handler(coap_message_t *response){
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
-    button_hal_button_t *btn;
     static struct etimer et;
     uip_ipaddr_t dest_ipaddr;
     static coap_endpoint_t server_ep;
@@ -81,12 +80,11 @@ PROCESS_THREAD(alert_server, ev, data)
 
     PROCESS_BEGIN();
 
-    etimer_set(&et, 10*CLOCK_SECOND);
-    btn = button_hal_get_by_index(0);
+    //etimer_set(&et, 10*CLOCK_SECOND);
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
     etimer_set(&wait_registration, CLOCK_SECOND * REG_TRY_INTERVAL);
 
-    while (!registered) {
+    while (1) {
         printf("Waiting connection..\n");
         PROCESS_YIELD();
 
@@ -99,6 +97,7 @@ PROCESS_THREAD(alert_server, ev, data)
                 coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
                 char msg[300];
                 strcpy(msg, "{\"Resource\":\"alert_actuator\"}");
+                printf("MSG registration alert.c : %s\n", msg);
                 coap_set_payload(request, (uint8_t*) msg, strlen(msg));
                 COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
                 registered = true;
@@ -120,12 +119,12 @@ PROCESS_THREAD(alert_server, ev, data)
 
 
 PROCESS_THREAD(sensor_node, ev, data){
-
+    button_hal_button_t *btn;
 	PROCESS_BEGIN();
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
-    coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
-
+    //coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
+    btn = button_hal_get_by_index(0);
     // SIMULATION
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
     LOG_INFO("Simulation\n");
