@@ -73,7 +73,7 @@ void response_handler(coap_message_t *response){
 //*************************** THREAD *****************************//
 PROCESS_THREAD(alert_server, ev, data)
 {
-    static struct etimer et;
+    //static struct etimer et;
     uip_ipaddr_t dest_ipaddr;
     static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
@@ -123,7 +123,7 @@ PROCESS_THREAD(sensor_node, ev, data){
 	PROCESS_BEGIN();
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
-    //coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
+    coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
     btn = button_hal_get_by_index(0);
     // SIMULATION
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
