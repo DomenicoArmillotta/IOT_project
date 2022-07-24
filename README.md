@@ -58,4 +58,4 @@ make TARGET=nrf52840 BOARD=dongle coap_sensor.dfu-upload PORT=/dev/ttyACM0
 ```
 
 ## Project Overview:
-![](/image.png)
+![](/Documentation/image.png)
