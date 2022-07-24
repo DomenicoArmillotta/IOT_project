@@ -2,12 +2,16 @@
 # Smart House
 ## Library to install to run project:
 `$ pip3 install tabulate` 
-`$ pip3 install server`
-`$ pip3 install databases`
-`$ pip3 install logging`
-`$ pip3 install nrfutil`
-link to fix bug on nrfutil = 
 
+`$ pip3 install server`
+
+`$ pip3 install databases`
+
+`$ pip3 install logging`
+
+`$ pip3 install nrfutil`
+
+link to fix bug on nrfutil = 
 [links](https://appuals.com/command-python-setup-py-egg_info/#:~:text=Fix%3A%20'Command%20%E2%80%9Cpython%20setup,code%201'%20When%20Installing%20Python&text=The%20error%20code%201%20is,to%20be%20installed%20or%20updated)
 
 
