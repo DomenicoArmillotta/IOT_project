@@ -61,4 +61,6 @@ make TARGET=nrf52840 BOARD=dongle coap_sensor.dfu-upload PORT=/dev/ttyACM0
 Our project aims to create a home monitoring system , environmental factors and an intrusion detection system. All the data are then saved in a database.
 "mqtt" sensors take care of the monitoring part of gas , lighting , temperature and humidity.
 "Coap" sensors deal with the intrusion system , as soon as the motion sensors sense the intruder , the alarm is triggered and gradually increases in intensity. To manually stop the alarm , just press the button of one of the alarms
+
+
 ![](/Documentation/image.png)
