@@ -49,6 +49,7 @@ class MotionResource :
                 # quando non c'e' un intruso cambio solo lo stato , ma senza query
                 print("disattivo allarme .py")
                 response = self.client.post(self.actuator_resource,"OFF")
+                self.execute_query(0)
         else:
             return;
 
@@ -57,19 +58,24 @@ class MotionResource :
     def execute_query(self,value):
 
         print(self.connection)
+        with self.connection.cursor() as cursor:
+            # Create a new record
+            # ts = time.time()
+            # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+            sql = "INSERT INTO `coapsensorsmotion` (`value`) VALUES (%s)"
+            cursor.execute(sql, (value))
 
-        if value == 1:
-
-            with self.connection.cursor() as cursor:
-                # Create a new record
-                # ts = time.time()
-                # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                sql = "INSERT INTO `coapsensorsmotion` (`value`) VALUES (%s)"
-                cursor.execute(sql, (value))
-
-            # connection is not autocommit by default. So you must commit to save
-            # your changes.
-            self.connection.commit()
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        self.connection.commit()
+        # Show data log
+        with self.connection.cursor() as cursor2:
+            sql = "SELECT * FROM `coapsensorsmotion`"
+            cursor2.execute(sql)
+            results = cursor2.fetchall()
+            header = results[0].keys()
+            rows = [x.values() for x in results]
+            print(tabulate.tabulate(rows,header,tablefmt='grid'))
 
 
 
