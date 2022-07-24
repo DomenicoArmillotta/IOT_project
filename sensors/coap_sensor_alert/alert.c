@@ -123,7 +123,7 @@ PROCESS_THREAD(sensor_node, ev, data){
 	PROCESS_BEGIN();
     // RESOURCES ACTIVATION
     coap_activate_resource(&alert_actuator, "alert_actuator");
-    coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
+    //coap_activate_resource(&alert_switch_actuator, "alert_switch_actuator");
     btn = button_hal_get_by_index(0);
     // SIMULATION
     etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
@@ -132,30 +132,29 @@ PROCESS_THREAD(sensor_node, ev, data){
     while (1) {
         PROCESS_WAIT_EVENT();
 
-        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
-            printf("Trigger Alert\n");
+        if (ev == PROCESS_EVENT_TIMER && data == &simulation && pressed) {
+            printf("Alarm event!\n");
             alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }
 
-        if ((ev == button_hal_press_event) && !pressed) {
+        if ((ev == button_hal_press_event)) {
             //registered la variabile per capire se si è registrata al border router
             if (registered) {
-                printf("Button pressed\n");
-                btn = (button_hal_button_t *)data;
-                printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
-                pressed = !pressed;
-                etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
-            }
-        }
-        if (pressed) {
-            if (registered) {
-                // Client has put info, stop the running timer (if any)
-                etimer_stop(&timeout_timer);
-                printf("Running timer stopped!\n");
-                alert_switch_actuator.trigger();
-                pressed = false;
-
+                if(!pressed){
+                    printf("Button pressed\n");
+                    btn = (button_hal_button_t *)data;
+                    printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
+                    pressed = true;
+                    alert_actuator.trigger();
+                    etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
+                }
+                else{
+                    etimer_stop(&timeout_timer);
+                    printf("Release alarm!\n");
+                    alert_actuator.trigger();
+                    pressed = false;
+                }
             }
         }
     }

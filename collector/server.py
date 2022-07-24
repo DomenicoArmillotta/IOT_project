@@ -86,24 +86,17 @@ class AdvancedResourceAlert(Resource):
         return self, response
 
     def render_POST_advanced(self, request, response):
-        print("GET server, received message:\n")
-        print(request.payload)
-        # Store the (id,port) request: print(request.source)
-        # Now, we extract the information from the json payload
-        moteInfo = json.loads(request.payload)
-        # Send a response with successful outcome
-        response.payload = self.payload
-        response.max_age = 20
-        response.code = defines.Codes.CONTENT.number
-        # Memorize source in dict to know destination address
-        moteInfo["Source"] = request.source
-        alertResource = AlertResource(moteInfo["Source"],moteInfo["MoteResource"],moteInfo["NodeID"],moteInfo["NodeType"])
+        self.payload = request.payload
+        from coapthon.messages.response import Response
+        assert(isinstance(response, Response))
+        response.payload = "Response changed through POST"
+        response.code = defines.Codes.CREATED.number
         return self, response
 '''
 
 class AdvancedResourceAlertSwitch(Resource):
 
-    def __init__(self, name="Advanced"):
+    def __init__(self, name="AdvancedAlertSwitch"):
         super(AdvancedResourceAlertSwitch, self).__init__(name)
         self.payload = "Successful registration"
 
@@ -120,5 +113,5 @@ class AdvancedResourceAlertSwitch(Resource):
         response.code = defines.Codes.CONTENT.number
         # Memorize source in dict to know destination address
         moteInfo["Source"] = request.source
-        alertResource = AlertResource(moteInfo["Source"],moteInfo["Resource"])
+        alertSwitchResource = AlertSwitchResource(moteInfo["Source"],moteInfo["Resource"])
         return self, response

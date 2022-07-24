@@ -35,20 +35,18 @@ class MotionResource :
             nodeData = json.loads(response.payload)
             # read from payload of client
             isDetected = nodeData["isDetected"].split(" ")
-            print("Detection value .py ricevo :")
+            print("Detection value motion :")
             print(isDetected)
             self.isDetected = isDetected[0]
             # when occour an intrusion a query is executed
             if self.isDetected == 'T':
                 # response per far cambiare stato all'alert
-                response = self.client.post(self.actuator_resource,"ON")
-                print("Attivo allarme .py")
+                response = self.client.post("alert_actuator","ON")
                 # faccio la query quando trovo un intruso
                 self.execute_query(1)
             else:
                 # quando non c'e' un intruso cambio solo lo stato , ma senza query
-                print("disattivo allarme .py")
-                response = self.client.post(self.actuator_resource,"OFF")
+                # response = self.client.post(self.actuator_resource,"OFF")
                 self.execute_query(0)
         else:
             return;

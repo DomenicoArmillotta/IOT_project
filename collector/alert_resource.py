@@ -35,16 +35,18 @@ class AlertResource :
             # read from payload of client
             info = nodeData["info"].split(" ")
             intensity = nodeData["intensity"].split(" ")
-            print("Detection value :")
+            print("Detection value alarm :")
             print(info)
             print(intensity)
             self.isDetected = info[0]
             self.intensity = intensity[0];
-            # when occour an intrusion a query is executed
+            # when an intrusion occurs a query is executed
             if self.isDetected == 'T':
                 self.execute_query(1)
-            if self.isDetected == 'F':
+                response = self.client.post(self.actuator_resource,"ON")
+            else:
                 self.execute_query(0)
+                response = self.client.post(self.actuator_resource,"OFF")
 
 
     def execute_query(self , value):

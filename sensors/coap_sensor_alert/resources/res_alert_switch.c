@@ -10,7 +10,7 @@
 #define LOG_MODULE "alert switch actuator"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
-static bool isPressed = true;
+//static bool isPressed = true;
 
 static void get_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
@@ -30,20 +30,23 @@ res_event_handler); //--> handler invoke auto  every time the state of resource 
 static void get_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
     int length;
-
-        char msg[300];
-        // T = true
-        // N = negative
-        char val = isPressed == 1 ? 'T': 'N';
-        strcpy(msg,"{\"info\":\"");
-        strncat(msg,&val,1);
-        strcat(msg,"\"}");
-        length = strlen(msg);
-        memcpy(buffer, (uint8_t *)msg, length);
-        printf("MSG: %s\n", msg);
-        coap_set_header_content_format(response, TEXT_PLAIN);
-        coap_set_header_etag(response, (uint8_t *)&length, 1);
-        coap_set_payload(response, (uint8_t *)buffer, length);
+    int intensity = 10;
+    char msg[300];
+    char val = 'N';
+    strcpy(msg,"{\"info\":\"");
+    strncat(msg,&val,1);
+    strcat(msg,"\", \"intensity\":\"");
+    char intensity_str[400];
+    sprintf(intensity_str, "%d", intensity);
+    //printf("intensity: %s\n", intensity_str);
+    strcat(msg,intensity_str);
+    strcat(msg,"\"}");
+    printf("MSG alert switch: %s\n",msg);
+    length = strlen(msg);
+    memcpy(buffer, (uint8_t *)msg, length);
+    coap_set_header_content_format(response, TEXT_PLAIN);
+    coap_set_header_etag(response, (uint8_t *)&length, 1);
+    coap_set_payload(response, (uint8_t *)buffer, length);
 }
 
 static void res_event_handler(void)

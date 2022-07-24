@@ -42,7 +42,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     strcat(msg,"\"}");
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
-    printf("MSG res.c invio : %s\n", msg);
+    printf("MSG res_motion invio : %s\n", msg);
     coap_set_header_content_format(response, TEXT_PLAIN);
     coap_set_header_etag(response, (uint8_t *)&length, 1);
     coap_set_payload(response, (uint8_t *)buffer, length);

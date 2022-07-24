@@ -19,7 +19,7 @@ class AlertSwitchResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "alert_actuator"
+        self.actuator_resource = "alert_switch_actuator"
         self.isActive = "F";
         # Start observing for updates
         self.start_observing()
@@ -35,7 +35,7 @@ class AlertSwitchResource :
             print("Detection value :")
             print(info)
             self.isDetected = info[0]
-            response = self.client.post(self.actuator_resource,"OFF")
+            response = self.client.post("alert_actuator","OFF")
 
     # non e' efficente fare query al db per mettere in store quando e' acceso l'allarme
     def start_observing(self):
@@ -43,4 +43,4 @@ class AlertSwitchResource :
         logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)
         logging.getLogger("coapthon.client.coap").setLevel(logging.WARNING)
         self.client = HelperClient(self.address)
-        self.client.observe(self.resource,self.presence_callback_observer)
+        self.client.observe(self.resource,self.pressure_callback_observer)
