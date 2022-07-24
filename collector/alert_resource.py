@@ -41,9 +41,9 @@ class AlertResource :
             self.isDetected = info[0]
             self.intensity = intensity[0];
             # when occour an intrusion a query is executed
-            if self.isActive == 'T':
+            if self.isDetected == 'T':
                 self.execute_query(1)
-            if self.isActive == 'F':
+            if self.isDetected == 'F':
                 self.execute_query(0)
 
 
