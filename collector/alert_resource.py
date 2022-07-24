@@ -42,10 +42,12 @@ class AlertResource :
             self.intensity = intensity[0];
             # when occour an intrusion a query is executed
             if self.isActive == 'T':
-                self.execute_query()
+                self.execute_query(1)
+            if self.isActive == 'F':
+                self.execute_query(0)
 
 
-    def execute_query(self):
+    def execute_query(self , value):
         print(self.connection)
         with self.connection.cursor() as cursor:
             # Create a new record
@@ -55,10 +57,19 @@ class AlertResource :
             # sql = "INSERT INTO `coapsensorsalarm` (`value`, `timestamp`, `intensity`) VALUES (%s, %s , %s)"
             # cursor.execute(sql, (self.isDetected, time, intensity))
             sql = "INSERT INTO `coapsensorsalarm` (`value`, `intensity`) VALUES (%s, %s)"
-            cursor.execute(sql, (self.isDetected, intensity))
+            cursor.execute(sql, (value, intensity))
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         self.connection.commit()
+        # Show data log
+        with self.connection.cursor() as cursor2:
+            sql = "SELECT * FROM `coapsensorsalarm`"
+            cursor2.execute(sql)
+            results = cursor2.fetchall()
+            header = results[0].keys()
+            rows = [x.values() for x in results]
+            print(tabulate.tabulate(rows,header,tablefmt='grid'))
+
 
 
 
