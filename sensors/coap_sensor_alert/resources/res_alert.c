@@ -24,7 +24,7 @@ EVENT_RESOURCE(alert_actuator, //--> name
 "title=\"alarm actuator: ?POST/PUT\";obs;rt=\"alarm\"",
 get_intensity_handler,
 post_switch_handler,
-NULL,
+post_switch_handler,
 NULL,
 res_event_handler); //--> handler invoke auto  every time the state of resource change
 
@@ -62,6 +62,7 @@ static void get_intensity_handler(coap_message_t *request, coap_message_t *respo
 //usata per fare on/off
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
+    printf("ENTRATO NELLA POST!\n");
     if(request != NULL) {
         LOG_DBG("POST/PUT Request Sent\n");
     }
