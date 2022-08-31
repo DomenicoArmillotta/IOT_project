@@ -10,7 +10,7 @@
 #define LOG_MODULE "alert actuator"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
-extern bool isActive = false;
+static bool isActive = false;
 static int intensity = 10;
 
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
