@@ -132,7 +132,7 @@ PROCESS_THREAD(sensor_node, ev, data){
     while (1) {
         PROCESS_WAIT_EVENT();
 
-        if (ev == PROCESS_EVENT_TIMER && data == &simulation && pressed) {
+        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
             printf("Alarm event!\n");
             alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);

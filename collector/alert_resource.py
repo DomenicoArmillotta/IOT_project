@@ -42,11 +42,11 @@ class AlertResource :
             self.intensity = intensity[0];
             # when an intrusion occurs a query is executed
             if self.isDetected == 'T':
-                response = self.client.post(self.actuator_resource,"state=1")
+                #response = self.client.post(self.actuator_resource,"state=1")
                 print("Funziona 2a")
                 self.execute_query(1)
             else:
-                response = self.client.post(self.actuator_resource,"state=1")
+                #response = self.client.post(self.actuator_resource,"state=1")
                 print("Funziona 2b")
                 self.execute_query(0)
 
