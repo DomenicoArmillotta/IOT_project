@@ -21,7 +21,7 @@ class MotionResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "motion_resource"
+        self.actuator_resource = "alert"
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
@@ -41,12 +41,14 @@ class MotionResource :
             # when occour an intrusion a query is executed
             if self.isDetected == 'T':
                 # response per far cambiare stato all'alert
-                response = self.client.post("alert_actuator","ON")
+                response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 1a")
                 # faccio la query quando trovo un intruso
                 self.execute_query(1)
             else:
                 # quando non c'e' un intruso cambio solo lo stato , ma senza query
-                # response = self.client.post(self.actuator_resource,"OFF")
+                response = self.client.post(self.actuator_resource,"state=0")
+                print("Funziona 1b")
                 self.execute_query(0)
         else:
             return;

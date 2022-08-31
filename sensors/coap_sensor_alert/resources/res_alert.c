@@ -67,29 +67,21 @@ static void post_switch_handler(coap_message_t *request, coap_message_t *respons
     }
 
     printf("Post handler called\n");
-
-
     size_t len = 0;
     const char *state = NULL;
     int check = 1;
-
     if((len = coap_get_post_variable(request, "state", &state))) {
         if (atoi(state) == 1){
             leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-            occupied = true;
+            isActive = true;
         }
-
         else if(atoi(state) == 0){
             leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-            occupied = false;
+            isActive = false;
         }
-
         else{
             check = 0;
         }
-
-        // occupied = atoi(state);
-
     }
     else{
         check = 0;

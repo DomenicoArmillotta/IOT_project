@@ -19,7 +19,7 @@ class AlertResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "alert_actuator"
+        self.actuator_resource = "alert"
         self.intensity = 10;
         self.isActive = "F";
         # Start observing for updates
@@ -42,12 +42,13 @@ class AlertResource :
             self.intensity = intensity[0];
             # when an intrusion occurs a query is executed
             if self.isDetected == 'T':
+                response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 2a")
                 self.execute_query(1)
-                response = self.client.post(self.actuator_resource,"ON")
             else:
+                response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 2b")
                 self.execute_query(0)
-                response = self.client.post(self.actuator_resource,"OFF")
-
 
     def execute_query(self , value):
         print(self.connection)
