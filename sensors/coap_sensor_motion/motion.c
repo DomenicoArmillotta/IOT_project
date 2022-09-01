@@ -34,6 +34,8 @@
 
 static struct etimer register_timer;
 static struct etimer simulation;
+static struct etimer timeout_timer;
+
 
 bool registered = false;
 bool pressed = false;

@@ -44,7 +44,12 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     }else if(isActive==false){
         intensity=10;
     }
-    char val1 = isActive == true ? 'T': 'N';
+    if(isDetected==1){
+        isActive=true;
+    }else if (isDetected==0){
+        isActive=false;
+    }
+    char val1 = isActive == 1 ? 'T': 'N';
     char val2 = isDetected == 1 ? 'T': 'N';
     strcpy(msg,"{\"isDetected\":\"");
     strncat(msg,&val2,1);
@@ -57,11 +62,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     strcat(msg,"\"}");
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
-    if(isDetected==1){
-        isActive=true;
-    }else if (isDetected==0){
-        isActive=false;
-    }
+
     printf("MSG res_motion invio : %s\n", msg);
     coap_set_header_content_format(response, TEXT_PLAIN);
     coap_set_header_etag(response, (uint8_t *)&length, 1);
