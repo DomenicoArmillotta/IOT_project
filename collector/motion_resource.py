@@ -23,6 +23,8 @@ class MotionResource :
         self.resource = resource
         self.actuator_resource = "alert_actuator"
         self.isDetected = "F";
+        self.intensity = 10;
+        self.isActive = "F";
         # Start observing for updates
         self.start_observing()
         print("Motion resource initialized")
@@ -35,9 +37,15 @@ class MotionResource :
             nodeData = json.loads(response.payload)
             # read from payload of client
             isDetected = nodeData["isDetected"].split(" ")
-            print("Detection value motion :")
+            info = nodeData["info"].split(" ")
+            intensity = nodeData["intensity"].split(" ")
+            print("Detection value motion node :")
             print(isDetected)
+            print(info)
+            print(intensity)
             self.isDetected = isDetected[0]
+            self.isActive = info[0]
+            self.intensity = intensity[0];
             # when occour an intrusion a query is executed
             if self.isDetected == 'T':
                 # response per far cambiare stato all'alert
@@ -62,8 +70,10 @@ class MotionResource :
             # Create a new record
             # ts = time.time()
             # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-            sql = "INSERT INTO `coapsensorsmotion` (`value`) VALUES (%s)"
-            cursor.execute(sql, (value))
+            intensity = str(self.intensity)
+            alarm = str(self.isActive)
+            sql = "INSERT INTO `coapsensorsmotion` (`value`,`alarm`,`intensity`) VALUES (%s,%s,%s)"
+            cursor.execute(sql, (value,alarm,intensity))
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.

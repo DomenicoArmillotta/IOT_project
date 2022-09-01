@@ -44,10 +44,16 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     }else if(isActive==false){
         intensity=10;
     }
-
+    char val1 = isActive == true ? 'T': 'N';
     char val2 = isDetected == 1 ? 'T': 'N';
     strcpy(msg,"{\"isDetected\":\"");
     strncat(msg,&val2,1);
+    strcat(msg,"\", \"info\":\"");
+    strncat(msg,&val1,1);
+    strcat(msg,"\", \"intensity\":\"");
+    char intensity_str[400];
+    sprintf(intensity_str, "%d", intensity);
+    strcat(msg,intensity_str);
     strcat(msg,"\"}");
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
