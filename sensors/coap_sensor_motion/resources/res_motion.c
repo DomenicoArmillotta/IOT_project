@@ -12,6 +12,8 @@
 #define EVENT_INTERVAL 30
 
 static bool isDetected = false;
+static bool isActive = false;
+static int intensity = 10;
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
@@ -36,12 +38,24 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     char msg[300];
     // T = true
     // N = negative
+
+    if(isActive==true && intensity<100){
+        intensity=intensity+10;
+    }else if(isActive==false){
+        intensity=10;
+    }
+
     char val2 = isDetected == 1 ? 'T': 'N';
     strcpy(msg,"{\"isDetected\":\"");
     strncat(msg,&val2,1);
     strcat(msg,"\"}");
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
+    if(isDetected==1){
+        isActive=true;
+    }else if (isDetected==0){
+        isActive=false;
+    }
     printf("MSG res_motion invio : %s\n", msg);
     coap_set_header_content_format(response, TEXT_PLAIN);
     coap_set_header_etag(response, (uint8_t *)&length, 1);

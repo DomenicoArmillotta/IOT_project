@@ -44,18 +44,18 @@ class MotionResource :
                 response = self.client.post(self.actuator_resource,"state=1")
                 print("Funziona 1a")
                 # faccio la query quando trovo un intruso
-                self.execute_query(1)
+                self.execute_query_motion(1)
             else:
                 # quando non c'e' un intruso cambio solo lo stato , ma senza query
                 response = self.client.post(self.actuator_resource,"state=0")
                 print("Funziona 1b")
-                self.execute_query(0)
+                self.execute_query_motion(0)
         else:
             return;
 
 
 
-    def execute_query(self,value):
+    def execute_query_motion(self,value):
 
         print(self.connection)
         with self.connection.cursor() as cursor:

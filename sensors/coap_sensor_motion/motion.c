@@ -36,6 +36,7 @@ static struct etimer register_timer;
 static struct etimer simulation;
 
 bool registered = false;
+bool pressed = false;
 
 extern coap_resource_t motion_sensor;
 extern coap_resource_t alert_actuator;
@@ -125,19 +126,37 @@ PROCESS_THREAD(coap_client, ev, data){
 //aggiungere if per la disattivazione del sensore completo se premi bottone
 PROCESS_THREAD(sensor_node, ev, data){
 
+    button_hal_button_t *btn;
 	PROCESS_BEGIN();
 	coap_activate_resource(&motion_sensor, "motion_resource");
     coap_activate_resource(&alert_actuator, "alert_actuator");
+    btn = button_hal_get_by_index(0);
 
 etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
     LOG_INFO("Simulation\n");
     while (1) {
         PROCESS_YIELD();
         //ogni 30 secondi triggera il controllo e genera random isDetected
-        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
+        if (ev == PROCESS_EVENT_TIMER && data == &simulation && !pressed) {
             printf("Trigger Motion\n");
             motion_sensor.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
+        }
+
+        if ((ev == button_hal_press_event)){
+            if (registered){
+                if(!pressed){
+                    printf("Button pressed\n");
+                    btn = (button_hal_button_t *)data;
+                    printf("Release event (%s)\n", BUTTON_HAL_GET_DESCRIPTION(btn));
+                    pressed = true;
+                    etimer_set(&timeout_timer,TIMEOUT_INTERVAL*CLOCK_SECOND);
+                }else{
+                    etimer_stop(&timeout_timer);
+                    printf("Release alarm!\n");
+                    pressed = false;
+                }
+            }
         }
     }
 	PROCESS_END();

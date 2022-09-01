@@ -71,12 +71,16 @@ static void post_switch_handler(coap_message_t *request, coap_message_t *respons
     int check = 1;
     if((len = coap_get_post_variable(request, "state", &state))) {
         if (atoi(state) == 1){
+            if(isActive==true && intensity<100){
+                intensity=intensity+10;
+            }
             leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
             isActive = true;
         }
         else if(atoi(state) == 0){
             leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
             isActive = false;
+            intensity=10;
         }
         else{
             check = 0;

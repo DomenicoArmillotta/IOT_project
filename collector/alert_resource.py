@@ -19,7 +19,7 @@ class AlertResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "alert"
+        self.actuator_resource = "alert_actuator"
         self.intensity = 10;
         self.isActive = "F";
         # Start observing for updates
