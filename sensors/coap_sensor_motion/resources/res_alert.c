@@ -7,7 +7,7 @@
 
 /* Log configuration */
 #include "sys/log.h"
-#define LOG_MODULE "alert actuator"
+#define LOG_MODULE "motion sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static bool isActive = false;
@@ -15,18 +15,16 @@ static int intensity = 10;
 
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-static void res_event_handler(void);
 
 
 //qui costruisco la response che devo dare al client
 
-EVENT_RESOURCE(alert_actuator, //--> name
+RESOURCE(alert_actuator, //--> name
 "title=\"alarm actuator: ?POST\";obs;rt=\"alarm\"",
 get_intensity_handler,
 post_switch_handler,
 NULL,
-NULL,
-res_event_handler); //--> handler invoke auto  every time the state of resource change
+NULL); //--> handler invoke auto  every time the state of resource change
 
 //get per sapere lo stato
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
@@ -97,7 +95,3 @@ static void post_switch_handler(coap_message_t *request, coap_message_t *respons
 }
 
 
-static void res_event_handler(void)
-{
-    coap_notify_observers(&alert_actuator);
-}

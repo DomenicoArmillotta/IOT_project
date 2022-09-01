@@ -122,7 +122,7 @@ PROCESS_THREAD(coap_client, ev, data){
     }*/
     PROCESS_END();
 }
-
+//aggiungere if per la disattivazione del sensore completo se premi bottone
 PROCESS_THREAD(sensor_node, ev, data){
 
 	PROCESS_BEGIN();
@@ -137,7 +137,6 @@ etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
             printf("Trigger Motion\n");
             motion_sensor.trigger();
-            alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }
     }
