@@ -21,10 +21,10 @@ static void res_event_handler(void);
 //qui costruisco la response che devo dare al client
 
 EVENT_RESOURCE(alert_actuator, //--> name
-"title=\"alarm actuator: ?POST/PUT\";obs;rt=\"alarm\"",
+"title=\"alarm actuator: ?POST\";obs;rt=\"alarm\"",
 get_intensity_handler,
 post_switch_handler,
-post_switch_handler,
+NULL,
 NULL,
 res_event_handler); //--> handler invoke auto  every time the state of resource change
 
