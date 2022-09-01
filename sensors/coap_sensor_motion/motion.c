@@ -38,6 +38,8 @@ static struct etimer simulation;
 bool registered = false;
 
 extern coap_resource_t motion_sensor;
+extern coap_resource_t alert_actuator;
+
 
 
 /*---------------------------------------------------------------------------*/
@@ -125,7 +127,9 @@ PROCESS_THREAD(sensor_node, ev, data){
 
 	PROCESS_BEGIN();
 	coap_activate_resource(&motion_sensor, "motion_resource");
-    etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
+    coap_activate_resource(&alert_actuator, "alert_actuator");
+
+etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
     LOG_INFO("Simulation\n");
     while (1) {
         PROCESS_YIELD();
@@ -133,6 +137,7 @@ PROCESS_THREAD(sensor_node, ev, data){
         if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
             printf("Trigger Motion\n");
             motion_sensor.trigger();
+            alert_actuator.trigger();
             etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
         }
     }

@@ -21,7 +21,7 @@ class MotionResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "alert"
+        self.actuator_resource = "alarm"
         self.isDetected = "F";
         # Start observing for updates
         self.start_observing()
