@@ -1,11 +1,3 @@
-/*
- * Questa classe serve per la creazione della mqtt
- * viene inizializzato il client (client process)
- * vengono mandati messagi con valori random ogni 30s dal publisher alla coda (publisher process)
- * volendo si possono creare più topic
- * i dati vengono presi dall'app py in base al topic per l'elaborazione
- * USIAMO Mosquitto COME BROKER SULLA VM
- */
 /*---------------------------------------------------------------------------*/
 #include "contiki.h"
 #include "net/routing/routing.h"
@@ -58,9 +50,6 @@ static uint8_t state;
 #define STATE_DISCONNECTED    5  // Disconnected from MQTT broker
 
 /*---------------------------------------------------------------------------*/
-//creati i due processi : client e publisher
-//runno i due processi
-//uno per il client e uno per la pubblicazione sulla coda con valori randomici
 PROCESS_NAME(mqtt_client_process);
 AUTOSTART_PROCESSES(&mqtt_client_process);
 
@@ -120,8 +109,7 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
   }
 }
 /*---------------------------------------------------------------------------*/
-//in base all'evento dell mqtt assegna l'evento allo stato
-//default dal prof
+
 
 static void mqtt_event(struct mqtt_connection* m, mqtt_event_t event, void* data){
 	switch(event){
@@ -171,7 +159,6 @@ static bool have_connectivity(){
 }
 /*---------------------------------------------------------------------------*/
 //SUBSCRIBER
-//posso avere anche piu topic ma in questo caso ho solo weather
 PROCESS_THREAD(mqtt_client_process, ev, data)
 {
   PROCESS_BEGIN();
@@ -213,16 +200,14 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
           memcpy(broker_address, broker_ip, strlen(broker_ip));
 
           mqtt_connect(&conn, broker_address, DEFAULT_BROKER_PORT, (DEFAULT_PUBLISH_INTERVAL * 3)/CLOCK_SECOND, MQTT_CLEAN_SESSION_ON);
-          /*mqtt_connect(&conn, broker_ip, DEFAULT_BROKER_PORT,
-                       (DEFAULT_PUBLISH_INTERVAL * 3) / CLOCK_SECOND,
-                       MQTT_CLEAN_SESSION_ON);*/
+
           state = STATE_CONNECTING;
           printf("Connecting!\n");
       }
 
       if(state==STATE_CONNECTED){
            printf("Check connected\n");
-          //non faccio l'iscrizione al topic perche lo faccio in py con l'app
+
           state = STATE_SUBSCRIBED;
       }
 

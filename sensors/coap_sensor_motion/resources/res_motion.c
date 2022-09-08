@@ -18,7 +18,6 @@ static int intensity = 10;
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
-//qui costruisco la response che devo dare al client
 
 EVENT_RESOURCE(motion_sensor, //--> name
 "title=\"Motion sensor: ?POST/PUT\";obs",   //---> descriptor (obs significa che è osservabile)
@@ -28,7 +27,6 @@ NULL,
 NULL,
 res_event_handler); //--> handler invoke auto  every time the state of resource change
 
-//qui ci sono le response che il server manda al client
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
     // Create a JSON message with the detected presence value and led value
@@ -63,7 +61,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     length = strlen(msg);
     memcpy(buffer, (uint8_t *)msg, length);
 
-    printf("MSG res_motion invio : %s\n", msg);
+    printf("MSG res_motion send : %s\n", msg);
     coap_set_header_content_format(response, TEXT_PLAIN);
     coap_set_header_etag(response, (uint8_t *)&length, 1);
     coap_set_payload(response, (uint8_t *)buffer, length);

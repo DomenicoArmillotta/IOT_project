@@ -65,9 +65,7 @@ void response_handler(coap_message_t *response){
 /**
  * Node behave as coap_client in order to register to the rpl_border_router.
  */
-//codice coap client client
-//serve solo per la connessione al border router dei sensori coap
-//si illumina se si connette
+
 PROCESS_THREAD(coap_client, ev, data){
 
     static coap_endpoint_t server_ep;
@@ -111,18 +109,7 @@ PROCESS_THREAD(coap_client, ev, data){
     }
 
     LOG_INFO("REGISTERED\nStarting motion server\n");
-    /*coap_activate_resource(&motion_sensor, "motion_resource");
-    etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-    LOG_INFO("Simulation\n");
-    while (1) {
-        PROCESS_YIELD();
-        //ogni 30 secondi triggera il controllo e genera random isDetected
-        if (ev == PROCESS_EVENT_TIMER && data == &simulation) {
-            printf("Trigger Motion\n");
-            motion_sensor.trigger();
-            etimer_set(&simulation, CLOCK_SECOND * SIMULATION_INTERVAL);
-        }
-    }*/
+
     PROCESS_END();
 }
 //aggiungere if per la disattivazione del sensore completo se premi bottone
