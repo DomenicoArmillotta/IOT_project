@@ -21,8 +21,10 @@ class MotionResource :
         self.connection = self.db.connect_dbs()
         self.address = source_address
         self.resource = resource
-        self.actuator_resource = "motion_resource"
+        self.actuator_resource = "alert_actuator"
         self.isDetected = "F";
+        self.intensity = 10;
+        self.isActive = "F";
         # Start observing for updates
         self.start_observing()
         print("Motion resource initialized")
@@ -35,33 +37,41 @@ class MotionResource :
             nodeData = json.loads(response.payload)
             # read from payload of client
             isDetected = nodeData["isDetected"].split(" ")
-            print("Detection value motion :")
+            info = nodeData["info"].split(" ")
+            intensity = nodeData["intensity"].split(" ")
+            print("Detection value motion node :")
             print(isDetected)
+            print(info)
+            print(intensity)
             self.isDetected = isDetected[0]
+            self.isActive = info[0]
+            self.intensity = intensity[0];
             # when occour an intrusion a query is executed
             if self.isDetected == 'T':
-                # response per far cambiare stato all'alert
-                response = self.client.post("alert_actuator","ON")
+                response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 1a")
                 # faccio la query quando trovo un intruso
-                self.execute_query(1)
+                self.execute_query_motion(1)
             else:
-                # quando non c'e' un intruso cambio solo lo stato , ma senza query
-                # response = self.client.post(self.actuator_resource,"OFF")
-                self.execute_query(0)
+                response = self.client.post(self.actuator_resource,"state=0")
+                print("Funziona 1b")
+                self.execute_query_motion(0)
         else:
             return;
 
 
 
-    def execute_query(self,value):
+    def execute_query_motion(self,value):
 
         print(self.connection)
         with self.connection.cursor() as cursor:
             # Create a new record
             # ts = time.time()
             # time = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-            sql = "INSERT INTO `coapsensorsmotion` (`value`) VALUES (%s)"
-            cursor.execute(sql, (value))
+            intensity = str(self.intensity)
+            alarm = str(self.isActive)
+            sql = "INSERT INTO `coapsensorsmotion` (`value`,`alarm`,`intensity`) VALUES (%s,%s,%s)"
+            cursor.execute(sql, (value,alarm,intensity))
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.

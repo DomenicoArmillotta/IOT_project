@@ -10,9 +10,6 @@ import tabulate
 import time
 import datetime
 import logging
-from coap_collector import Motion
-from coap_collector import Alarm
-from coap_collector import AlarmSwitch
 
 
 # Define Variables
@@ -35,8 +32,7 @@ class CoAPServer(CoAP):
         # Register resource: server behave as client in order to get the registration
         print("adding resource");
         self.add_resource("registration", AdvancedResource())
-        self.add_resource("registrationAlert", AdvancedResourceAlert())
-        # self.add_resource("registrationAlert", AdvancedResourceAlertSwitch())
+
 
 class MqttClient():
     # Define on connect event function
@@ -65,7 +61,6 @@ class MqttClient():
             light = "DARK"
         ts = time.time()
         timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        # faccio la connessione a sql e metto i dati, nella nostra app posso anche evitare --> posso usare un df
         with self.connection.cursor() as cursor:
             # Create a new record
             sql = "INSERT INTO `mqttsensors` (`temperature`, `humidity`,`light` ,`gas`, `timestamp`) VALUES (%s, %s, %s , %s, %s)"
@@ -108,22 +103,9 @@ logging.getLogger("coapthon.client.coap").setLevel(logging.WARNING)
 
 
 # Initiate MQTT Client
-
-#mqttc = mqtt.Client()
-#mqttc.db = Database()
-#mqttc.connection = mqttc.db.connect_dbs()
-
-# Assign event callbacks
-#mqttc.on_message = on_message
-#mqttc.on_connect = on_connect
-# Connect with MQTT Broker
 mqttc = MqttClient();
-# mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 mqtt_thread = threading.Thread(target=mqttc.mqtt_client,args=(),kwargs={})
-# mqtt_thread.daemon = True
 mqtt_thread.start()
-# Continue monitoring the incoming messages for subscribed topic
-#mqttc.loop_forever()
 server = CoAPServer(ip, port)
 try:
     print("Listening to server")

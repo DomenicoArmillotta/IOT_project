@@ -7,7 +7,7 @@
 
 /* Log configuration */
 #include "sys/log.h"
-#define LOG_MODULE "alert actuator"
+#define LOG_MODULE "motion sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 static bool isActive = false;
@@ -15,18 +15,16 @@ static int intensity = 10;
 
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-static void res_event_handler(void);
 
 
 //qui costruisco la response che devo dare al client
 
-EVENT_RESOURCE(alert_actuator, //--> name
-"title=\"alert sensor: ?obs",   //---> descriptor (obs significa che è osservabile)
+RESOURCE(alert_actuator, //--> name
+"title=\"alarm actuator: ?POST\";obs;rt=\"alarm\"",
 get_intensity_handler,
 post_switch_handler,
 NULL,
-NULL,
-res_event_handler); //--> handler invoke auto  every time the state of resource change
+NULL); //--> handler invoke auto  every time the state of resource change
 
 //get per sapere lo stato
 static void get_intensity_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
@@ -59,56 +57,44 @@ static void get_intensity_handler(coap_message_t *request, coap_message_t *respo
 }
 
 
-//usata per fare on/off
 static void post_switch_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
-    LOG_INFO("Handling switch post request...\n");
+    printf("entered in POST function!\n");
+    if(request != NULL) {
+        LOG_DBG("POST/PUT Request Sent\n");
+    }
 
+    printf("Post handler called\n");
     size_t len = 0;
-    const uint8_t* payload = NULL;
-    bool success = true;
-
-    if((len = coap_get_payload(request, &payload)))
-    {
-        isActive = !isActive;
-        if(isActive){
-            //ogni volta che viene chiamata di seguito una ON intensifica di 10 la potenza
-            /*if(intensity<100){
-                intensity=intensity+10;
-            }*/
-            intensity = 100;
-            LOG_INFO("Switch on\n");
-        }
-        else{
-            //reset dell'intensita appena viene spento così riparte da 10
-            intensity=10;
-            LOG_INFO("Switch off\n");
-        }
-        /*if (strncmp((char*)payload, "ON", strlen("ON")) == 0)
-        {
-            isActive = true;
-            //ogni volta che viene chiamata di seguito una ON intensifica di 10 la potenza
-            if(intensity<100){
+    const char *state = NULL;
+    int check = 1;
+    if((len = coap_get_post_variable(request, "state", &state))) {
+        if (atoi(state) == 1){
+            if(isActive==true && intensity<100){
                 intensity=intensity+10;
             }
-            LOG_INFO("Switch on\n");
+            leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
+            isActive = true;
         }
-        if (strncmp((char*)payload, "OFF", strlen("OFF")) == 0)
-        {
+        else if(atoi(state) == 0){
+            leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
             isActive = false;
-            //reset dell'intensita appena viene spento così riparte da 10
             intensity=10;
-            LOG_INFO("Switch off\n");
-        }*/
-    } else
-        success = false;
+        }
+        else{
+            check = 0;
+        }
+    }
+    else{
+        check = 0;
+    }
 
-    if(!success)
+    if (check){
+        coap_set_status_code(response, CHANGED_2_04);
+    }
+    else{
         coap_set_status_code(response, BAD_REQUEST_4_00);
+    }
 }
 
 
-static void res_event_handler(void)
-{
-    coap_notify_observers(&alert_actuator);
-}

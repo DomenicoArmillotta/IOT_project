@@ -26,7 +26,7 @@ class AlertResource :
         self.start_observing()
         print("Alert resource initialized")
 
-    # salvo l'intensita' dell'allarme
+
     def presence_callback_observer(self, response):
         print("Callback called, resource arrived")
         if response.payload is not None:
@@ -42,12 +42,13 @@ class AlertResource :
             self.intensity = intensity[0];
             # when an intrusion occurs a query is executed
             if self.isDetected == 'T':
+                #response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 2a")
                 self.execute_query(1)
-                response = self.client.post(self.actuator_resource,"ON")
             else:
+                #response = self.client.post(self.actuator_resource,"state=1")
+                print("Funziona 2b")
                 self.execute_query(0)
-                response = self.client.post(self.actuator_resource,"OFF")
-
 
     def execute_query(self , value):
         print(self.connection)
@@ -76,7 +77,6 @@ class AlertResource :
 
 
 
-    #non e' efficente fare query al db per mettere in store quando e' acceso l'allarme
     def start_observing(self):
         logging.getLogger("coapthon.server.coap").setLevel(logging.WARNING)
         logging.getLogger("coapthon.layers.messagelayer").setLevel(logging.WARNING)
