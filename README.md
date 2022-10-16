@@ -3,7 +3,7 @@
 ## Library to install to run project:
 `$ pip3 install tabulate` 
 
-`$ pip3 install server`
+`$ pip3 install pypiserver`
 
 `$ pip3 install databases`
 
@@ -78,3 +78,4 @@ Our project aims to create a home monitoring system , environmental factors and 
 
 
 ![](/Documentation/image.png)
+## Se vi è stato utile offritemi un caffè al pn
