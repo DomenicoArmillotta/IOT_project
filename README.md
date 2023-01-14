@@ -78,4 +78,3 @@ Our project aims to create a home monitoring system , environmental factors and 
 
 
 ![](/Documentation/image.png)
-## Se vi è stato utile offritemi un caffè al pn
